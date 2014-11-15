@@ -18,3 +18,8 @@ void SDLState::Update()
     ProcessEvent(env);
   }
 }
+
+void SDLState::SetWindowTitle(const char* title)
+{
+  SDL_SetWindowTitle(mWindow, title);
+}

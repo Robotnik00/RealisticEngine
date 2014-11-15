@@ -26,10 +26,13 @@ namespace RealisticEngine
 
       void SetLocalTransform(glm::mat4 transform);
 
+      void Translate(glm::vec3 translation);
+      void Rotate(float angle, glm::vec3 axis);
+
       glm::mat4 GetLocalTransform();
       glm::mat4 GetGlobalTransform();
-      glm::mat4* GetGlobalInterpolator();
-      glm::mat3* GetNormalMatrix();
+      glm::mat4 GetGlobalInterpolator();
+      glm::mat3 GetNormalMatrix();
 
       void SetParent(Node* parent);
       int AddChild(Node* child);
@@ -45,14 +48,19 @@ namespace RealisticEngine
       int RemoveAsset(Renderer::Asset* asset);
 
       Node* GetParent();
-      int GetChildren(Node** children);
+      std::vector<Node*> GetChildren();
+      std::vector<Action*> GetActions();
+      std::vector<Renderer::Asset*> GetAssets();
+      std::vector<Renderer::DrawInterface*> GetDrawInterfaces();
 
       void Update();
       void Draw(float delta);
 
+      float GetDelta() { return mDelta; }
+
     protected:
 
-
+      float mDelta;
 
       glm::mat4 mTransform;
       glm::mat4 mPrevGlobalTransform;
@@ -62,9 +70,9 @@ namespace RealisticEngine
       Node* mParent;
       std::vector<Node*> mChildren;
 
-      std::vector<Renderer::DrawInterface*> mDrawInterfaces;
       std::vector<Action*> mActions;
       std::vector<Renderer::Asset*> mAssets;
+      std::vector<Renderer::DrawInterface*> mDrawInterfaces;
     };
   }
 }

@@ -1,11 +1,20 @@
+#include <string.h>
+
+#include <glm/gtc/type_ptr.hpp>
+
 #include "RealisticEngine/Renderer/Asset.h"
 #include "RealisticEngine/Renderer/GPURenderer.h"
+
+#include "RealisticEngine/Scene/Node.h"
 
 
 using namespace RealisticEngine::Renderer;
 
 
-
+UniformVariable::UniformVariable()
+{
+  mData = NULL;
+}
 
 
 
@@ -17,6 +26,13 @@ UniformVariable::UniformVariable(std::string name, UniformType type, GLsizei cou
   mCount = count;
 }
 
+UniformVariable::~UniformVariable()
+{
+  if(mData != NULL)
+  {
+    delete[] mData;
+  }
+}
 
 void UniformVariable::Setup(std::string name, UniformType type, GLsizei count)
 {
@@ -156,14 +172,30 @@ void UniformVariable::Bind()
   }
 }
 
-void UniformVariable::BindData(void* data)
-{
-  mData = data;
-}
-
-void UniformVariable::BindActiveShader(GPURenderer *renderer)
+void UniformVariable::SetRenderer(GPURenderer *renderer)
 {
   mRenderer = renderer;
+}
+
+void UniformVariable::SetData(void *data, uint16_t bytesize)
+{
+  if(mData != NULL)
+  {
+    delete[] mData;
+  }
+  mData = new char[bytesize];
+  memcpy(mData, data, bytesize);
+}
+
+Texture::Texture(Texture* rhs)
+{
+  this->mWidth = rhs->mWidth;
+  this->mHeight = rhs->mHeight;
+  this->mFormat = rhs->mFormat;
+  this->mPixleType = rhs->mPixleType;
+  this->mTexid = rhs->mTexid;
+  this->mTexUnit = rhs->mTexUnit;
+  this->mData = NULL;
 }
 
 void Texture::Setup(void *data, GLuint width, GLuint height, GLenum texunit, GLenum format, GLenum pixletype)
@@ -186,15 +218,39 @@ void Texture::Load()
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::Unload()
+{
+  glDeleteTextures(1, &mTexid);
+}
+
 void Texture::Bind()
 {
   glActiveTexture(mTexUnit);
-
   glBindTexture(GL_TEXTURE_2D, mTexid);
-
 }
 
 void Texture::UnBind()
 {
   glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void UpdateModelMatrix::Setup(Scene::Node *node, GPURenderer* renderer, std::string modelMatName, std::string normalMatName)
+{
+  mNode = node;
+
+  mModelMat.Setup(modelMatName, UniformVariable::MAT4F, 1);
+  mModelMat.SetRenderer(renderer);
+
+  mNormalMat.Setup(normalMatName, UniformVariable::MAT3F, 1);
+  mNormalMat.SetRenderer(renderer);
+}
+
+void UpdateModelMatrix::Bind()
+{
+  glm::mat4 data1 = mNode->GetGlobalInterpolator();
+  mModelMat.SetData(glm::value_ptr(data1), sizeof(glm::mat4));
+  mModelMat.Bind();
+  glm::mat3 data2 = mNode->GetNormalMatrix();
+  mNormalMat.SetData(glm::value_ptr(data2), sizeof(glm::mat3));
+  mNormalMat.Bind();
 }

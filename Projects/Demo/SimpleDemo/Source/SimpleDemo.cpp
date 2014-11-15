@@ -3,78 +3,49 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <RealisticEngine/Scene/Camera.h>
+
+
 #include "SimpleDemo.h"
 
 
 using namespace Projects::Demo::SimpleDemo;
-using namespace RealisticEngine::Renderer;
 using namespace RealisticEngine::Core;
 using namespace RealisticEngine::Scene;
-
-
+using namespace RealisticEngine::Renderer;
 
 void SimpleDemoState::Initialize()
 {
   SDLState::Initialize(); // initialize window
 
-  mShader1.LoadShader("shader.vert", "shader.frag"); // load shader
-  if(mShader1.Compile() == false) // if failed to build
-  {
-    std::cout << mShader1.GetVertexShaderLog() << "\n\n";
-    std::cout << mShader1.GetFragmentShaderLog() << "\n\n";
-    std::cout.flush();
-  }
-  if(mShader1.Link() == false)
-  {
-    std::cout << "failed to link shader\n";
-    std::cout.flush();
-  }
+  mGPURenderer.Initialize();
 
+  mCamera.Setup("cameraPosition", "viewMat", "projMat", &mGPURenderer);
+  mCamera.SetSceneNode(&mRootNode);
+  mCamera.PerspectiveMatrix(45.0,1024.0,768.0,10,4000.0);
+  mCamera.SetPosition(0,200,1000);
 
-  mShader1.MakeActive(); // make active
-
-  mGPURenderer.SetActiveShader(&mShader1);
-
-  // initialze shader values
-  mProjMatTransform = glm::perspective(45.0f, 1024.0f/768.0f, 0.1f, 10000.0f);
-  mViewMatTransform = glm::mat4(1);
-  mRootNodeTransform = glm::mat4(1);
-
-  mViewMatTransform = glm::translate(mViewMatTransform, glm::vec3(0.0,-300,-1000.0));
-  mRootNodeTransform = glm::rotate(mRootNodeTransform, -3.141592654f/2.0f, glm::vec3(1.0f,0.0f,0.0f));
-
-  // setup uniform variables
-  mProjMat.Setup("projMat", UniformVariable::MAT4F, 1);
-  mViewMat.Setup("viewMat", UniformVariable::MAT4F, 1);
-
-  // setup uniform variables to point to current active shader
-  mProjMat.BindActiveShader(&mGPURenderer);
-  mViewMat.BindActiveShader(&mGPURenderer);
-
-  // setup uniform variables to point to defined variables
-  mProjMat.BindData(glm::value_ptr(mProjMatTransform));
-  mViewMat.BindData(glm::value_ptr(mViewMatTransform));
-
-
-  // setup node transforms
-  mRootNode.SetLocalTransform(mRootNodeTransform);
-
-  // add draw interfaces to the nodes
-  // must add uniform variables in order for them to be updated in the shader
-  mRootNode.AddAsset(&mProjMat);
-  mRootNode.AddAsset(&mViewMat);
-
-
-  Node* node = new Node();
+  mnode1 = new Node();
+//  mnode2 = new Node();
   mModelLoader.Setup(&mGPURenderer);
-//  mModelLoader.Load("./Beautiful Girl", "Beautiful Girl.obj", node);
-  mModelLoader.Load("./BumbleBee/", "RB-BumbleBee.obj", node);
+//  mModelLoader.Load("./Boy", "boy.obj", node1);
+//  mModelLoader.Load("./Lincoln Navigator", "navigator.obj", node1);
+//  mModelLoader.Load("./Beautiful Girl", "Beautiful Girl.obj", mnode2);
+//  mModelLoader.Load("./N916MU/Formats", "N916MU.3ds", mnode1);
+  mModelLoader.Load("./BumbleBee/", "RB-BumbleBee.obj", mnode1);
+  mnode1->Rotate(-90, glm::vec3(1,0,0));
+  mnode1->Rotate(-90, glm::vec3(0,0,1));
 
-  mRootNode.AddChild(node);
+  mRootNode.AddChild(mnode1);
 
+  mRootNode.AddAction(&mCamera);
+  mRootNode.AddAsset(&mCamera);
+  mCamera.SetSceneNode(&mRootNode);
 
+  for(int i = 0; i < 256; i++)
+    mKeysPressed[i] = false;
 
-  glClearColor(0,0,0,1);
+  mMouseVec = glm::vec4(0);
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -82,19 +53,81 @@ void SimpleDemoState::Update()
 {
   SDLState::Update();
 
+  std::string title = std::to_string(mEngine->GetFrameRate());
+  SetWindowTitle(title.data());
+
   // update scene
   mRootNode.Update();
 
-  // set new rootNode transform
-  mRootNodeTransform = glm::rotate(mRootNodeTransform, 0.05f, glm::vec3(0.0f,0.0f,1.0f));
-  mRootNode.SetLocalTransform(mRootNodeTransform);
-
-
-
-  if(mEngine->GetTime() > 100.0)
+  float speed = 10.0f;
+  if(mKeysPressed['w'])
   {
-    mEngine->Stop();
+    glm::vec3 forward = glm::vec3(mCamera.GetCamZ());
+    forward *= -speed;
+    mCamera.Translate(forward);
   }
+  if(mKeysPressed['s'])
+  {
+    glm::vec3 forward = glm::vec3(mCamera.GetCamZ());
+    forward *= speed;
+    mCamera.Translate(forward);
+  }
+  if(mKeysPressed['a'])
+  {
+    glm::vec3 side = glm::vec3(mCamera.GetCamX());
+    side *= -speed;
+    mCamera.Translate(side);
+  }
+  if(mKeysPressed['d'])
+  {
+    glm::vec3 side = glm::vec3(mCamera.GetCamX());
+    side *= speed;
+    mCamera.Translate(side);
+  }
+  if(mKeysPressed['z'])
+  {
+    glm::vec3 up = glm::vec3(mCamera.GetCamY());
+    up *= speed;
+    mCamera.Translate(up);
+  }
+  if(mKeysPressed['x'])
+  {
+    glm::vec3 down = glm::vec3(mCamera.GetCamY());
+    down *= -speed;
+    mCamera.Translate(down);
+  }
+  if(mKeysPressed[80] == true) // left
+  {
+    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamY()));
+  }
+  if(mKeysPressed[82] == true) // up
+  {
+    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamX()));
+  }
+  if(mKeysPressed[79] == true) // right
+  {
+    mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamY()));
+  }
+  if(mKeysPressed[81] == true) // down
+  {
+    mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamX()));
+  }
+  if(mKeysPressed['q'] == true)
+  {
+    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamZ()));
+  }
+  if(mKeysPressed['e'] == true)
+  {
+    mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamZ()));
+  }
+
+  if(glm::length(mMouseVec) > 0.1)
+  {
+    glm::vec3 mousevec = glm::normalize(glm::vec3(mCamera.GetMatrix() * mMouseVec));
+    mousevec = glm::cross(glm::vec3(mCamera.GetCamZ()), mousevec);
+    mCamera.Rotate(4.0 * glm::length(mMouseVec), mousevec);
+  }
+
 }
 
 void SimpleDemoState::Render(double delta)
@@ -102,7 +135,7 @@ void SimpleDemoState::Render(double delta)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // render scene
-  mRootNode.Draw(delta);
+  mGPURenderer.RenderScene(&mRootNode, delta);
 
   SDL_RenderPresent(SDLState::mRenderer);
 }
@@ -113,6 +146,15 @@ void SimpleDemoState::ProcessEvent(SDL_Event env)
   {
   case SDL_QUIT:
     mEngine->Stop();
+    break;
+  case SDL_MOUSEMOTION:
+    mMouseVec = glm::vec4(-((float)env.motion.x - 511.0f)/511.0f, ((float)env.motion.y - 383.0f)/383.0f, 0.0, 0.0);
+    break;
+  case SDL_KEYDOWN:
+    mKeysPressed[env.key.keysym.sym%256] = true;
+    break;
+  case SDL_KEYUP:
+    mKeysPressed[env.key.keysym.sym%256] = false;
     break;
 
   default:
@@ -127,11 +169,8 @@ int main(int argc, char** argv)
   Engine engine;
   SimpleDemoState demoState(&engine);
   demoState.Initialize();
-
-
   engine.SetState(&demoState);
   engine.Start();
-
 
   return 0;
 }

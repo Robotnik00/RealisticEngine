@@ -14,13 +14,19 @@ namespace RealisticEngine
     public:
 
       virtual void Initialize();
-      virtual void RenderScene(Scene::Node* scene, float delta);
+      virtual void RenderScene(Scene::Node* scene, double delta);
 
-      void SetActiveShader(Shader* shader) { mActiveShader = shader; }
+      void SetActiveShader(Shader* shader) { shader->MakeActive(); mActiveShader = shader; }
+
+
+
       Shader* GetActiveShader() { return mActiveShader; }
     protected:
 
       Shader* mActiveShader;
+
+
+      Shader mShader1; // shader
     };
   }
 }

@@ -1,10 +1,14 @@
+#include <string.h>
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "RealisticEngine/Scene/Node.h"
 #include <iostream>
 #include "RealisticEngine/Renderer/DrawInterface.h"
 #include "RealisticEngine/Renderer/Asset.h"
 
 using namespace RealisticEngine::Scene;
-
+using namespace RealisticEngine::Renderer;
 
 /*
  * Public methods for class Node
@@ -27,6 +31,15 @@ glm::mat4 Node::GetLocalTransform()
   return mTransform;
 }
 
+void Node::Translate(glm::vec3 translation)
+{
+  mTransform = glm::translate(mTransform, translation);
+}
+
+void Node::Rotate(float angle, glm::vec3 axis)
+{
+  mTransform = glm::rotate(mTransform, angle, axis);
+}
 
 glm::mat4 Node::GetGlobalTransform()
 {
@@ -38,13 +51,13 @@ glm::mat4 Node::GetGlobalTransform()
   return mParent->GetGlobalTransform() * mTransform;
 }
 
-glm::mat4* Node::GetGlobalInterpolator()
+glm::mat4 Node::GetGlobalInterpolator()
 {
-  return &mInterpolator;
+  return mInterpolator;
 }
-glm::mat3* Node::GetNormalMatrix()
+glm::mat3 Node::GetNormalMatrix()
 {
-  return &mNormalMatrix;
+  return mNormalMatrix;
 }
 
 void Node::SetParent(Node *parent)
@@ -141,30 +154,42 @@ Node* Node::GetParent()
   return mParent;
 }
 
-int Node::GetChildren(Node** children)
+std::vector<Node*> Node::GetChildren()
 {
-  for(int i = 0; i < mChildren.size(); i++)
-    children[i] = mChildren[i];
 
-  return mChildren.size();
+  return mChildren;
+}
+
+std::vector<Action*> Node::GetActions()
+{
+  return mActions;
+}
+std::vector<Asset*> Node::GetAssets()
+{
+  return mAssets;
+}
+std::vector<DrawInterface*> Node::GetDrawInterfaces()
+{
+  return mDrawInterfaces;
 }
 
 void Node::Update()
 {
   mPrevGlobalTransform = GetGlobalTransform();
 
+  for(int i = 0; i < mActions.size(); i++)
+  {
+    mActions[i]->PerformAction();
+  }
   for(int i = 0; i < mChildren.size(); i++)
   {
     mChildren[i]->Update();
-  }
-  for(int i = 0; i < mActions.size(); i++)
-  {
-    mActions[i]->performAction();
   }
 }
 
 void Node::Draw(float delta)
 {
+  mDelta = delta;
   glm::mat4 globalTransform = GetGlobalTransform();
 
   mInterpolator = globalTransform * delta + mPrevGlobalTransform * (1-delta);

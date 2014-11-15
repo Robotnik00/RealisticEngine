@@ -1,6 +1,7 @@
 #ifndef SDLSTATE_H
 #define SDLSTATE_H
 
+
 #include <SDL.h>
 
 #include "RealisticEngine/Core/State.h"
@@ -18,7 +19,7 @@ namespace RealisticEngine
       virtual void Update();
       virtual void ProcessEvent(SDL_Event env) = 0;
 
-
+      void SetWindowTitle(const char* title);
 
       SDL_Window*	mWindow;
       SDL_Renderer*	mRenderer;

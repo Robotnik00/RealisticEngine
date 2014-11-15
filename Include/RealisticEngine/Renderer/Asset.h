@@ -10,6 +10,11 @@
 
 namespace RealisticEngine
 {
+  namespace Scene
+  {
+    class Node;
+  }
+
   namespace Renderer
   {
     class GPURenderer;
@@ -24,6 +29,7 @@ namespace RealisticEngine
     class UniformVariable : public Asset
     {
     public:
+
 
       typedef enum
       {
@@ -48,16 +54,25 @@ namespace RealisticEngine
         MAT4F
       }UniformType;
 
-      UniformVariable() {}
+      typedef enum
+      {
+        OWNER_THIS = 0,
+        OWNER_EXT
+      } DATA_OWNER;
+
+      UniformVariable();
       UniformVariable(std::string name, UniformType type, GLsizei count);
+      ~UniformVariable();
 
       void Setup(std::string name, UniformType type, GLsizei count);
 
       virtual void Bind();
       virtual void UnBind() {}
 
-      void BindData(void* data);
-      void BindActiveShader(GPURenderer* activeShaderId);
+      void SetRenderer(GPURenderer* renderer);
+      void SetData(void* data, uint16_t bytesize);
+
+
 
     protected:
 
@@ -71,6 +86,8 @@ namespace RealisticEngine
     class Texture : public Asset
     {
     public:
+      Texture() {}
+      Texture(Texture* rhs);
       void Setup(void* data, GLuint width, GLuint height, GLenum texunit, GLenum format, GLenum pixletype);
       void Load();
       void Unload();
@@ -85,6 +102,28 @@ namespace RealisticEngine
       GLenum mPixleType;
     };
 
+    class UpdateModelMatrix : public Asset
+    {
+    public:
+      void Setup(Scene::Node* node, GPURenderer* renderer, std::string modlMatName, std::string normalMatName);
+      virtual void Bind();
+      virtual void UnBind() {}
+
+    protected:
+      Scene::Node* mNode;
+      UniformVariable mModelMat;
+      UniformVariable mNormalMat;
+    };
+
+    class Light : public Asset
+    {
+    public:
+      void Setup(std::string lightName);
+      virtual void Bind();
+      virtual void UnBind();
+    protected:
+      UniformVariable mLightPostion;
+    };
   }
 }
 

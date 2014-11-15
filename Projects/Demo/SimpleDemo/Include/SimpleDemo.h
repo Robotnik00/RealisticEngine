@@ -14,6 +14,8 @@
 #include <RealisticEngine/Scene/ModelLoader.h>
 #include <RealisticEngine/Renderer/GPURenderer.h>
 
+#include <RealisticEngine/Scene/Camera.h>
+
 namespace Projects
 {
   namespace Demo
@@ -36,19 +38,23 @@ namespace Projects
         RealisticEngine::Renderer::GPURenderer mGPURenderer;
 
         RealisticEngine::Scene::Node mRootNode; // root of scene
-        RealisticEngine::Renderer::UniformVariable mProjMat; // uniform variable
-        RealisticEngine::Renderer::UniformVariable mViewMat; //
+        RealisticEngine::Scene::Node mGimble;
 
-        glm::mat4 mProjMatTransform; // projection matrix
+        RealisticEngine::Renderer::UniformVariable mProjMat;
+        RealisticEngine::Renderer::UniformVariable mViewMat;
+
+        glm::mat4 mProjMatTransform;
         glm::mat4 mViewMatTransform; // view matrix
-        glm::mat4 mRootNodeTransform; // rootNode matrix
-
-        RealisticEngine::Renderer::Shader mShader1; // shader
-        GLuint mActiveShader; // id of the current active shader
-
 
         RealisticEngine::Scene::AssimpModelLoader mModelLoader;
+        RealisticEngine::Scene::Node* mnode1;
+        RealisticEngine::Scene::Node* mnode2;
+        RealisticEngine::Scene::Camera mCamera;
 
+        glm::vec4 mMouseVec;
+
+        bool mKeysPressed[255];
+        float mSpeed = 10.0;
       };
     }
   }
