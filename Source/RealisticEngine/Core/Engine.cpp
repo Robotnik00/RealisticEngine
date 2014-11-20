@@ -11,7 +11,7 @@ using namespace std::chrono;
 Engine::Engine()
 {
   mTime = 0.0;
-  mUpdateFrequency = 20.0;
+  mUpdateFrequency = 30.0;
   mMaxFrameRate = 60.0;
   mCurrentState = NULL;
   mRunning = false;
@@ -57,7 +57,7 @@ void Engine::Loop()
       double fps = (1.0/(mTime - lastRenderTime));
       lastRenderTime = mTime;
 
-      mFrameRate += (fps - mFrameRate) / 5.0;
+      mFrameRate += (fps - mFrameRate) / 60.0;
 
       if(mCurrentState != NULL)
       {

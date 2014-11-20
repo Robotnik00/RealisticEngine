@@ -6,6 +6,8 @@
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 
+#include <glm/glm.hpp>
+
 
 
 namespace RealisticEngine
@@ -118,12 +120,54 @@ namespace RealisticEngine
     class Light : public Asset
     {
     public:
-      void Setup(std::string lightName);
+      void Setup(std::string lightName, GPURenderer* renderer);
       virtual void Bind();
       virtual void UnBind();
+
+      void SetColor(glm::vec3 color);
+      void SetPosition(glm::vec3 position);
+      void SetQuadraticAttenuation(float attenuation);
+
+      glm::vec3 GetPosition() { return mPosition; }
+
     protected:
-      UniformVariable mLightPostion;
+      UniformVariable mLightPosition;
+      UniformVariable mLightColor;
+      UniformVariable mQuadraticAttenuation;
+      glm::vec3 mPosition;
     };
+
+    class Material : public Asset
+    {
+    public:
+      void Setup(std::string materialName, GPURenderer* renderer);
+
+      void SetDiffuseReflectance(glm::vec3 reflectance);
+      void SetSpecularReflectance(glm::vec3 reflectance);
+      void SetShininess(float shininess);
+      void SetDiffuseTexture(Texture* texture);
+      void SetNormalTexture(Texture* texture);
+
+
+      virtual void Bind();
+      virtual void UnBind();
+
+    protected:
+
+      UniformVariable mDiffuseReflectance;
+      UniformVariable mSpecularReflectance;
+      UniformVariable mShininess;
+      UniformVariable mHasDiffuseTexture;
+      UniformVariable mHasNormalTexture;
+      UniformVariable mDiffuseTextureUnit;
+      UniformVariable mNormalTextureUnit;
+      UniformVariable mAmbient;
+      Texture* mDiffuseTexture;
+      Texture* mNormalTexture;
+
+
+    };
+
   }
 }
 

@@ -1,10 +1,15 @@
 
 #include <iostream>
 
-#include <GL/gl.h>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "RealisticEngine/Renderer/GPURenderer.h"
 #include "RealisticEngine/Scene/Node.h"
+#include "RealisticEngine/Renderer/Asset.h"
+
+
 
 using namespace RealisticEngine::Renderer;
 using namespace RealisticEngine::Scene;
@@ -12,21 +17,78 @@ using namespace RealisticEngine::Scene;
 
 void GPURenderer::Initialize()
 {
-  mShader1.LoadShader("shader.vert", "shader.frag"); // load shader
-  if(mShader1.Compile() == false) // if failed to build
+  mLightShader.LoadShader("lighting.vert", "lighting.frag"); // load shader
+  if(mLightShader.Compile() == false) // if failed to build
   {
-    std::cout << mShader1.GetVertexShaderLog() << "\n\n";
-    std::cout << mShader1.GetFragmentShaderLog() << "\n\n";
+    std::cout << mLightShader.GetVertexShaderLog() << "\n\n";
+    std::cout << mLightShader.GetFragmentShaderLog() << "\n\n";
     std::cout.flush();
   }
-  if(mShader1.Link() == false)
+  if(mLightShader.Link() == false)
   {
     std::cout << "failed to link shader\n";
     std::cout.flush();
   }
 
+  mDisplayShader.LoadShader("display.vert", "display.frag");
+  if(mDisplayShader.Compile() == false)
+  {
+    std::cout << mDisplayShader.GetVertexShaderLog() << "\n\n";
+    std::cout << mDisplayShader.GetFragmentShaderLog() << "\n\n";
+  }
+  if(mDisplayShader.Link() == false)
+  {
+    std::cout << "display shader not linked!\n";
+  }
+  if(mDepthCaptureShader.LoadShader("depth_capture.vert", "depth_capture.frag") == false)
+  {
+    std::cout << "could not find shader.\n";
+  }
+  if(mDepthCaptureShader.Compile() == false)
+  {
+    std::cout << mDepthCaptureShader.GetVertexShaderLog() << "\n\n";
+    std::cout << mDepthCaptureShader.GetFragmentShaderLog() << "\n\n";
+  }
+  if(mDepthCaptureShader.Link() == false)
+  {
+    std::cout << "error\n";
+  }
+  std::cout.flush();
 
-  SetActiveShader(&mShader1);
+
+  SetActiveShader(&mLightShader);
+
+  GLfloat displayPosition[] = {
+    -1.0, -1.0, 0.0,
+    1.0, -1.0, 0.0,
+    1.0, 1.0, 0.0,
+    -1.0, 1.0, 0.0
+  };
+  GLshort displayIndices[] = {
+    0,1,2,
+    0,2,3
+  };
+
+  mDisplayPositions.Setup(this, "position", displayPosition, GL_FLOAT, 12, 4, 3);
+  mDisplayPositions.Load();
+
+  mDisplayIndices.Setup(this, displayIndices, 6);
+  mDisplayIndices.Load();
+
+  mDisplayVBO.SetRenderer(this);
+  mDisplayVBO.AddAtributeArray(&mDisplayPositions);
+  mDisplayVBO.SetIndices(&mDisplayIndices);
+
+  mFrameBufferObject.Setup(1024, 768);
+  mFrameBufferObject.Initialize();
+
+  mDepthBuffer1.Setup(1024,768);
+  mDepthBuffer1.Initialize();
+
+  mLightMatrix.Setup("lightMat", UniformVariable::MAT4F, 1);
+  mLightMatrix.SetRenderer(this);
+  mTexUnit.Setup("depthMap", UniformVariable::INT, 1);
+  mTexUnit.SetRenderer(this);
 
 }
 
@@ -34,8 +96,34 @@ void GPURenderer::RenderScene(Node* scene, double delta)
 {
   if(scene != NULL)
   {
-    SetActiveShader(&mShader1);
 
-    scene->Draw(delta);
+
+
+    mFrameBufferObject.Bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+    glBlendFunc(GL_ONE, GL_ZERO);
+    for(int i = 0; i < mLights.size(); i++)
+    {
+
+      SetActiveShader(&mLightShader);
+      mLights[i]->Bind();
+      scene->Draw(delta);
+      glBlendFunc(GL_ONE, GL_ONE);
+    }
+
+    mFrameBufferObject.UnBind();
+
+
+    glViewport(0,0,1024,768);
+    mFrameBufferObject.BindTexture(FrameBuffer::COLOR_BUFFER_TEXTURE, GL_TEXTURE0);
+    int loc = glGetUniformLocation(mDisplayShader.GetProgramID(), "texture");
+    glUniform1i(loc, 0);
+
+    SetActiveShader(&mDisplayShader);
+    mDisplayVBO.Render();
+
+    std::cout.flush();
   }
 }

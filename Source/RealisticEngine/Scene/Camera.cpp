@@ -17,7 +17,7 @@ void Camera::Setup(std::string cameraPosName, std::string viewMatName, std::stri
   mProjMatrix.SetRenderer(renderer);
 
   mCameraPosition.Setup(cameraPosName, UniformVariable::VEC3F, 1);
-  mProjMatrix.SetRenderer(renderer);
+  mCameraPosition.SetRenderer(renderer);
 
   mCamX = glm::vec4(1,0,0,0);
   mCamY = glm::vec4(0,1,0,0);
@@ -40,6 +40,9 @@ void Camera::Bind()
 
   glm::vec3 pos = glm::vec3(mCamP);
   mCameraPosition.SetData(glm::value_ptr(pos), sizeof(glm::vec3));
+  mCameraPosition.Bind();
+
+  mProjMatrix.Bind();
 }
 
 void Camera::UnBind()
@@ -59,6 +62,7 @@ void Camera::SetPosition(float x, float y, float z)
 {
   mCamP = glm::vec4(x,y,z,1);
 }
+
 glm::vec4 Camera::GetCamX()
 {
   return mCamX;

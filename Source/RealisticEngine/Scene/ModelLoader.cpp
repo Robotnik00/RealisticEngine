@@ -59,7 +59,7 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
 
   // create a variable to tell the shader which textureUnit the diffuseMap is loaded into.
   UniformVariable* diffuseTexUnit = new UniformVariable();
-  diffuseTexUnit->Setup("diffTexture", UniformVariable::INT, 1);
+  diffuseTexUnit->Setup("material.DiffuseTexture", UniformVariable::INT, 1);
   GLint data0 = 0;
   diffuseTexUnit->SetData(&data0, sizeof(GLint));
   diffuseTexUnit->SetRenderer(renderer);
@@ -67,7 +67,7 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
 
   // create a variable to tell the shader which textureUnit the normalMap is loaded into
   UniformVariable* normalTexUnit = new UniformVariable();
-  normalTexUnit->Setup("normTexture", UniformVariable::INT, 1);
+  normalTexUnit->Setup("material.NormalTexture", UniformVariable::INT, 1);
   GLint data1 = 1;
   normalTexUnit->SetData(&data1, sizeof(GLint));
   normalTexUnit->SetRenderer(renderer);
@@ -103,10 +103,9 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
 
     // create a variable to tell the shader if their is a diffuse texture
     UniformVariable* hasDiffuseTex = new UniformVariable();
-    hasDiffuseTex->Setup("hasDiffuseTex", UniformVariable::INT, 1);
+    hasDiffuseTex->Setup("material.HasDiffuseTex", UniformVariable::INT, 1);
     hasDiffuseTex->SetRenderer(renderer);
     subnode->AddAsset(hasDiffuseTex);
-
     // if the model expects to have a diffuse map
     if(mat->GetTextureCount(aiTextureType_DIFFUSE) > 0)
     {
@@ -162,7 +161,7 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
 
     // if the model expects to have a normal map
     UniformVariable* hasNormalTex = new UniformVariable();
-    hasNormalTex->Setup("hasNormalTex", UniformVariable::INT, 1);
+    hasNormalTex->Setup("material.HasNormalTex", UniformVariable::INT, 1);
     hasNormalTex->SetRenderer(renderer);
     subnode->AddAsset(hasNormalTex);
     if(mat->GetTextureCount(aiTextureType_NORMALS))
@@ -242,6 +241,14 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
       positionBuffer->Setup(renderer, "position", mesh->mVertices, GL_FLOAT, 12, mesh->mNumVertices, 3);
       positionBuffer->Load();
       vbo->AddAtributeArray(positionBuffer);
+
+      Geometry geo;
+      for(int i = 0; i < mesh->mNumVertices; i++)
+      {
+        glm::vec3 vert = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+        geo.mVertices.push_back(vert);
+      }
+      subnode->SetGeometry(geo);
     }
 
     // if has vertex normals load them into the vbo
@@ -278,8 +285,18 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
     UniformVariable* uniform = new UniformVariable();
     uniform->SetData(diffusedata, sizeof(GLfloat) * 3);
     uniform->SetRenderer(renderer);
-    uniform->Setup("udiffuse", UniformVariable::VEC3F, 1);
+    uniform->Setup("material.KDiff", UniformVariable::VEC3F, 1);
     subnode->AddAsset(uniform);
+
+    aiColor3D color2(0.1,0.1,0.1);
+    mat->Get(AI_MATKEY_COLOR_SPECULAR, color2);
+    GLfloat speculardata[] = {color2.r, color2.g, color2.b};
+    UniformVariable* uSpecular = new UniformVariable();
+    uSpecular->Setup("material.KSpec", UniformVariable::VEC3F, 1);
+    uSpecular->SetRenderer(renderer);
+    uSpecular->SetData(speculardata, sizeof(GLfloat) * 3);
+    subnode->AddAsset(uSpecular);
+
   }
 
   // do this for all of this node's children

@@ -24,6 +24,11 @@ Node::Node()
 void Node::SetLocalTransform(glm::mat4 transform)
 {
   mTransform = transform;
+  if(mStartingPos)
+  {
+    mStartingPos = false;
+    mPrevGlobalTransform = GetGlobalTransform();
+  }
 }
 
 glm::mat4 Node::GetLocalTransform()
@@ -40,6 +45,8 @@ void Node::Rotate(float angle, glm::vec3 axis)
 {
   mTransform = glm::rotate(mTransform, angle, axis);
 }
+
+
 
 glm::mat4 Node::GetGlobalTransform()
 {

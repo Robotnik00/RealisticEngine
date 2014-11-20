@@ -12,8 +12,59 @@ SET(SDL2_SRC_DIR CACHE PATH "path to SDL2 source code")
 SET(ASSIMP3_SRC_DIR CACHE PATH "path to assimp3 source code")
 SET(FREEIMAGE_SRC_DIR CACHE PATH "path to FreeImage")
 
-#SET(PHYSX_SDK_DIR CACHE PATH "path to physx sdk")
+SET(PHYSX_SDK_DIR CACHE PATH "path to physx sdk")
 
+
+
+FILE(GLOB_RECURSE header_files1 ${PHYSX_SDK_DIR}/Include/*.h)
+SET(HEADER_DIRECTORIES1 "")
+FOREACH(file_path ${header_files1})
+  GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
+  SET(HEADER_DIRECTORIES1 ${HEADER_DIRECTORIES1} ${dir_path})
+ENDFOREACH()
+LIST(REMOVE_DUPLICATES HEADER_DIRECTORIES1)
+
+FILE(GLOB_RECURSE header_files2 ${PHYSX_SOURCE_DIR}/Source/*.h)
+SET(HEADER_DIRECTORIES2 "")
+FOREACH(file_path ${header_files2})
+  GET_FILENAME_COMPONENT(dir_path ${file_path} PATH)
+  SET(HEADER_DIRECTORIES2 ${HEADER_DIRECTORIES2} ${dir_path})
+ENDFOREACH()
+LIST(REMOVE_DUPLICATES HEADER_DIRECTORIES2)
+
+
+
+include_directories(${HEADER_DIRECTORIES1} ${HEADER_DIRECTORIES2})
+
+SET(HEADERS ${HEADER_DIRECTORIES1} ${HEADER_DIRECTORIES2})
+
+message("first list")
+
+message("${HEADER_DIRECTORIES1}")
+
+message("second list")
+
+message("${HEADER_DIRECTORIES2}")
+
+
+file(GLOB_RECURSE sources ${PHYSX_SDK_DIR}/Source/*.cpp)
+
+file(GLOB physx_libs
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libSimulationController.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevel.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysXProfileSDK.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Extensions.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libSceneQuery.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Common.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3CharacterKinematic.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Vehicle.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Cooking.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPvdRuntime.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libPxTask.a
+        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevelCloth.a
+#	${PHYSX_SDK_DIR}/Lib/linux64/*.a
+   )
 
 
 # set the output destination
@@ -42,10 +93,10 @@ add_dependencies(FreeImage build_FreeImage)
 
 ################
 
-ADD_SUBDIRECTORY(${SDL2_SRC_DIR})
-ADD_SUBDIRECTORY(${ASSIMP3_SRC_DIR})
+ADD_SUBDIRECTORY(${SDL2_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/SDL2)
+ADD_SUBDIRECTORY(${ASSIMP3_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/Assimp3)
 
-INCLUDE_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Source ${SDL2_SRC_DIR}/include ${ASSIMP3_SRC_DIR}/include ${GLM_SRC_DIR} ${RealisticEngine_SOURCE_DIR}/Include)
+INCLUDE_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Source ${SDL2_SRC_DIR}/include ${ASSIMP3_SRC_DIR}/include ${GLM_SRC_DIR} ${RealisticEngine_SOURCE_DIR}/Include ${HEADER_DIRECTORIES1} ${HEADER_DIRECTORIES2})
 
 LINK_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Dist)
 
@@ -55,7 +106,7 @@ FILE(GLOB_RECURSE HEADER_CODE ${RealisticEngine_SOURCE_DIR}/Include/*.h)
 
 ADD_LIBRARY(RealisticEngine SHARED ${SOURCE_CODE} ${HEADER_CODE})
 
-TARGET_LINK_LIBRARIES(RealisticEngine SDL2 assimp GL FreeImage)
+TARGET_LINK_LIBRARIES(RealisticEngine SDL2 assimp GL FreeImage ${physx_libs})
 
 ADD_SUBDIRECTORY(Projects)
 

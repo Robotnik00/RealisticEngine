@@ -13,6 +13,9 @@ namespace RealisticEngine
     class SDLState : public State
     {
     public:
+      void Setup(int width, int height);
+      int GetWidth();
+      int GetHeight();
 
       virtual void Initialize();
 
@@ -23,6 +26,9 @@ namespace RealisticEngine
 
       SDL_Window*	mWindow;
       SDL_Renderer*	mRenderer;
+
+      int mWidth = 1024;
+      int mHeight = 768;
     };
   }
 }

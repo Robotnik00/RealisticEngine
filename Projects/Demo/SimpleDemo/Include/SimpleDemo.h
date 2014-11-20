@@ -15,6 +15,7 @@
 #include <RealisticEngine/Renderer/GPURenderer.h>
 
 #include <RealisticEngine/Scene/Camera.h>
+#include <RealisticEngine/Scene/PhysxEngine.h>
 
 namespace Projects
 {
@@ -51,10 +52,14 @@ namespace Projects
         RealisticEngine::Scene::Node* mnode2;
         RealisticEngine::Scene::Camera mCamera;
 
+        RealisticEngine::Scene::PhysxEngine mPhysx;
+
         glm::vec4 mMouseVec;
 
         bool mKeysPressed[255];
         float mSpeed = 10.0;
+
+        double lastTime;
       };
     }
   }

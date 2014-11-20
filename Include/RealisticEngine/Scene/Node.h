@@ -8,6 +8,7 @@
 
 #include "RealisticEngine/Scene/Action.h"
 
+#include "RealisticEngine/Scene/Geomerty.h"
 
 namespace RealisticEngine
 {
@@ -47,11 +48,15 @@ namespace RealisticEngine
       int AddAsset(Renderer::Asset* asset);
       int RemoveAsset(Renderer::Asset* asset);
 
+
       Node* GetParent();
       std::vector<Node*> GetChildren();
       std::vector<Action*> GetActions();
       std::vector<Renderer::Asset*> GetAssets();
       std::vector<Renderer::DrawInterface*> GetDrawInterfaces();
+
+      void SetGeometry(Geometry geometry) { mGeometry = geometry; }
+      Geometry GetGeometry() { return mGeometry; }
 
       void Update();
       void Draw(float delta);
@@ -67,12 +72,17 @@ namespace RealisticEngine
       glm::mat4 mInterpolator;
       glm::mat3 mNormalMatrix;
 
+
       Node* mParent;
       std::vector<Node*> mChildren;
 
       std::vector<Action*> mActions;
       std::vector<Renderer::Asset*> mAssets;
       std::vector<Renderer::DrawInterface*> mDrawInterfaces;
+
+      Geometry mGeometry;
+
+      bool mStartingPos = true;
     };
   }
 }
