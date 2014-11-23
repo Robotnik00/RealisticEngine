@@ -22,13 +22,12 @@ float randFloat()
 
 Node* CreateRandomObject(GPURenderer* renderer, PhysicsEngine* physx)
 {
-  std::cout << randFloat() << std::endl;
-  Node* node =  RealisticEngine::Scene::CreateCube(randFloat()+.3, randFloat()+.3, randFloat()+.3, renderer);
+  Node* node =  RealisticEngine::Scene::CreateCube(randFloat()+.5, randFloat()+.5, randFloat()+.5, renderer);
   Material* mat1 = new Material();
   mat1->Setup("material", renderer);
   mat1->SetDiffuseReflectance(glm::vec3(randFloat(), randFloat(), randFloat()));
   node->AddAsset(mat1);
-  node->Translate(glm::vec3(randFloat()*2-1.0,randFloat()*5+10,randFloat()*2-1.0));
+  node->Translate(glm::vec3(randFloat()*2-1.0,randFloat()*2+15, randFloat()*2-1.0));
 
   PhysicsMaterial mat;
   mat.mStaticFriction = .5;
@@ -39,165 +38,111 @@ Node* CreateRandomObject(GPURenderer* renderer, PhysicsEngine* physx)
   return node;
 }
 
-void SimpleDemoState::Initialize()
+Node* CreateBox(glm::vec3 pos, glm::vec3 size, GPURenderer* renderer, PhysicsEngine* physx)
 {
-  SDLState::Initialize(); // initialize window
-
-  mPhysx.Setup(-9.81);
-  mPhysx.Initialize();
-
-  mGPURenderer.Initialize();
-
-
-  Light* light1 = new Light();
-  light1->Setup("light", &mGPURenderer);
-  light1->SetColor(glm::vec3(1,1,1));
-  light1->SetPosition(glm::vec3(10,10,10));
-  light1->SetQuadraticAttenuation(0.01);
-  mGPURenderer.AddLight(light1);
-
-  Light* light2 = new Light();
-  light2->Setup("light", &mGPURenderer);
-  light2->SetColor(glm::vec3(1,1,1));
-  light2->SetPosition(glm::vec3(-10,10,-10));
-  light2->SetQuadraticAttenuation(0.01);
-  mGPURenderer.AddLight(light2);
-
-//  Light* light3 = new Light();
-//  light3->Setup("light", &mGPURenderer);
-//  light3->SetColor(glm::vec3(0,1,0));
-//  light3->SetPosition(glm::vec3(-400,400,400));
-//  light3->SetQuadraticAttenuation(0.00001);
-//  mGPURenderer.AddLight(light3);
-
-//  Light* light4 = new Light();
-//  light4->Setup("light", &mGPURenderer);
-//  light4->SetColor(glm::vec3(0,0,1));
-//  light4->SetPosition(glm::vec3(-400,400,-400));
-//  light4->SetQuadraticAttenuation(0.00001);
-//  mGPURenderer.AddLight(light4);
-
-//  Light* light5 = new Light();
-//  light5->Setup("light", &mGPURenderer);
-//  light5->SetColor(glm::vec3(1,0,1));
-//  light5->SetPosition(glm::vec3(400,400,-400));
-//  light5->SetQuadraticAttenuation(0.00001);
-//  mGPURenderer.AddLight(light5);
-
-
-  mCamera.Setup("cameraPosition", "viewMat", "projMat", &mGPURenderer);
-  mCamera.SetSceneNode(&mRootNode);
-  mCamera.PerspectiveMatrix(45.0,1024.0,768.0, .1,100.0);
-  mCamera.SetPosition(0,10,10);
-
-  mnode1 = RealisticEngine::Scene::CreateCube(10, 1, 1, &mGPURenderer);
+  Node* node =  RealisticEngine::Scene::CreateCube(size.x, size.y, size.z, renderer);
   Material* mat1 = new Material();
-  mat1->Setup("material", &mGPURenderer);
-  mat1->SetShininess(100);
-  mat1->SetDiffuseReflectance(glm::vec3(1.0,0.7,0.7));
-  mnode1->AddAsset(mat1);
-  glm::mat4 scalemat = glm::mat4(1);
-  scalemat = glm::scale(scalemat, glm::vec3(2,.5,.5));
-  mnode1->SetLocalTransform(scalemat);
-  mnode1->Rotate(0, glm::vec3(0,1,0));
-  mnode1->Translate(glm::vec3(0,15,0));
-  Node* node = new Node();
-  node->AddChild(mnode1);
-//  mRootNode.AddChild(node);
+  mat1->Setup("material", renderer);
+//  mat1->SetDiffuseReflectance(glm::vec3(randFloat(), randFloat(), randFloat()));
+  mat1->SetDiffuseReflectance(glm::vec3(0,.5,1));
+  node->AddAsset(mat1);
+  node->Translate(pos);
 
   PhysicsMaterial mat;
   mat.mStaticFriction = .5;
   mat.mDynamicFriction = .5;
-  mat.mRestitution = .6;
+  mat.mRestitution = .1;
   mat.mDensity = 1.0;
-//  mPhysx.AddObject(node, PhysxEngine::RIGID_DYNAMIC, mat);
+  physx->AddObject(node, PhysicsEngine::RIGID_DYNAMIC, mat);
+  return node;
+}
 
 
-  mnode2 = RealisticEngine::Scene::CreateCube(100, 1, 100, &mGPURenderer);
-  Material* mat2 = new Material();
-  mat2->Setup("material", &mGPURenderer);
-  mat2->SetShininess(0);
-  mnode2->AddAsset(mat2);
-  mnode2->Translate(glm::vec3(0,0,0));
-  mRootNode.AddChild(mnode2);
-  mPhysx.AddObject(mnode2, PhysxEngine::RIGID_STATIC, mat);
+void SimpleDemoState::Initialize()
+{
+  SDLState::Initialize(); // initialize window
 
-//  Node* nodey = new Node();
-//  Node* node3 = RealisticEngine::Scene::CreateCube(1, 1, 1, &mGPURenderer);
-//  node3->AddAsset(mat1);
-//  glm::mat4 scale = glm::mat4(1);
-//  scale = glm::scale(scale, glm::vec3(2,2,2));
-//  node3->SetLocalTransform(scale);
-//  nodey->Translate(glm::vec3(2,10,0));
-//  nodey->AddChild(node3);
-//  mRootNode.AddChild(nodey);
-//  mPhysx.AddObject(nodey, PhysxEngine::RIGID_DYNAMIC, mat);
-
-//  Node* node4 = RealisticEngine::Scene::CreateCube(1, 1, 1, &mGPURenderer);
-//  node4->AddAsset(mat1);
-//  node4->Translate(glm::vec3(-2,-3,3));
-
-//  mnode1->AddChild(node4);
-
-
-
-
-  Node* node5 = new Node();
-//  Node* node4 = new Node();
-
+  // initialize things
+  mPhysx.Setup(-9.81);
+  mPhysx.Initialize();
+  mGPURenderer.Initialize();
   mModelLoader.Setup(&mGPURenderer);
-//  mModelLoader.Load("./Boy", "boy.obj", mnode1);
-//  mModelLoader.Load("./Lincoln Navigator", "navigator.obj", node5);
-//  mModelLoader.Load("./Beautiful Girl", "Beautiful Girl.obj", node5);
-//  mModelLoader.Load("./N916MU/Formats", "N916MU.3ds", mnode1);
-//  mModelLoader.Load("./BumbleBee/", "RB-BumbleBee.obj", node3);
-  mModelLoader.Load("./BumbleBee/", "RB-BumbleBee.obj", node5);
 
-//  mRootNode.AddChild(node3);
-//  node3->SetLocalTransform(scale);
-//  node3->Translate(glm::vec3(2000,2000,0));
-//  mPhysx.AddObject(node3, PhysicsEngine::RIGID_DYNAMIC, mat);
-
-  Node* node6 = new Node();
-  node6->AddChild(node5);
-  mRootNode.AddChild(node6);
-  glm::mat4 bumblescale = glm::mat4(1);
-  bumblescale = glm::scale(bumblescale, glm::vec3(0.01,0.01,0.01));
-  node5->SetLocalTransform(bumblescale);
-
-  node5->Rotate(-90, glm::vec3(1,0,0));
-
-  node6->Translate(glm::vec3(0,10,0));
-  mPhysx.AddObject(node6, PhysxEngine::RIGID_DYNAMIC, mat);
-
-
-
+  // camera
+  mCamera.Setup("cameraPosition", "viewMat", "projMat", &mGPURenderer);
+  mCamera.SetSceneNode(&mRootNode);
+  mCamera.PerspectiveMatrix(45.0,1024.0,768.0, 1,1000.0);
+  mCamera.SetPosition(0,15,50);
   mRootNode.AddAction(&mCamera);
   mRootNode.AddAsset(&mCamera);
   mCamera.SetSceneNode(&mRootNode);
 
+  // light1
+  Light* light1 = new Light();
+  light1->Setup("light", &mGPURenderer);
+  light1->SetColor(glm::vec3(1,1,1));
+  light1->SetPosition(glm::vec3(25,50,25));
+  light1->SetQuadraticAttenuation(0.0001);
+  mGPURenderer.AddLight(light1);
+
+  // physics material
+  PhysicsMaterial pxmat;
+  pxmat.mDensity = 1.0;
+  pxmat.mDynamicFriction = 0.7;
+  pxmat.mStaticFriction = 0.5;
+  pxmat.mRestitution = 0.6;
+
+  // create static base
+  Node* subnode1 = new Node();
+  mModelLoader.Load("./", "boxwithhole.obj", subnode1);
+  Node* rootnode1 = new Node();
+  rootnode1->AddChild(subnode1);
+  mRootNode.AddChild(rootnode1);
+  glm::mat4 scalemat = glm::mat4(1);
+  scalemat = glm::scale(scalemat, glm::vec3(15,4,15));
+  subnode1->SetLocalTransform(scalemat);
+  rootnode1->Translate(glm::vec3(0,0,0));
+  mPhysx.AddObject(rootnode1, PhysicsEngine::RIGID_STATIC, pxmat);
+
+  // create NxNxN boxes
+  int n = 10;
+  float scale = 1;
+  for(int i = 0; i < n; i++)
+  {
+    for(int j = 0; j < n; j++)
+    {
+      for(int k = 0; k < n; k++)
+      {
+        glm::vec3 pos = glm::vec3(scale * (i - n/2),scale * j + 20, scale * (k-n/2));
+        glm::vec3 size = glm::vec3(scale,scale,scale);
+        Node* node = CreateBox(pos, size, &mGPURenderer, &mPhysx);
+
+        mRootNode.AddChild(node);
+
+      }
+    }
+  }
 
 
-
+  // initial key states
   for(int i = 0; i < 256; i++)
     mKeysPressed[i] = false;
 
-  glEnable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+
 }
 
 void SimpleDemoState::Update()
 {
   SDLState::Update();
 
-  std::string title = std::to_string(mEngine->GetFrameRate());
-  SetWindowTitle(title.data());
+  char buffer[128];
+  sprintf(buffer, "U:%1.4f D:%3.2f A:%.4f", 1.0/mEngine->GetUpdateFrequency(), mEngine->GetFrameRate(), 1.0/60.0);
+  SetWindowTitle(buffer);
 
   // update scene
   mRootNode.Update();
 
-  float speed = .1f;
+  float speed = 0.3f;
   if(mKeysPressed['w'])
   {
     glm::vec3 forward = glm::vec3(mCamera.GetCamZ());
@@ -259,6 +204,16 @@ void SimpleDemoState::Update()
     mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamZ()));
   }
 
+  if(mKeysPressed['p'])
+  {
+    mEngine->SetUpdateFrequency(mEngine->GetUpdateFrequency() + 1);
+  }
+  else if(mKeysPressed['n'])
+  {
+    mEngine->SetUpdateFrequency(mEngine->GetUpdateFrequency() - 1);
+  }
+
+
   if(glm::length(mMouseVec) > 0.1)
   {
     glm::vec3 mousevec = glm::normalize(glm::vec3(mCamera.GetMatrix() * mMouseVec));
@@ -267,16 +222,15 @@ void SimpleDemoState::Update()
   }
 
 
-  if(mEngine->GetTime() - lastTime > 0.25)
+  if(mEngine->GetTime() - lastTime > 0.3)
   {
-    mRootNode.AddChild(CreateRandomObject(&mGPURenderer, &mPhysx));
+//    mRootNode.AddChild(CreateRandomObject(&mGPURenderer, &mPhysx));
     lastTime = mEngine->GetTime();
   }
 
 
-
-
-  mPhysx.StepTime(1.0/30.0);
+  if(mBegin)
+    mPhysx.StepTime(1.0/60.0);
 }
 
 void SimpleDemoState::Render(double delta)
@@ -304,6 +258,10 @@ void SimpleDemoState::ProcessEvent(SDL_Event env)
     break;
   case SDL_KEYUP:
     mKeysPressed[env.key.keysym.sym%256] = false;
+    if(env.key.keysym.sym == 'g')
+    {
+      mBegin = true;
+    }
     break;
 
   default:

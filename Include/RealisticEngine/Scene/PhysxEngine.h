@@ -26,7 +26,7 @@ namespace RealisticEngine
       virtual void ApplyTorque(Node* node, glm::vec3 torque);
     protected:
 
-      void AddGeometryRecursive(Node* rootnode, Node* subnode, physx::PxRigidActor* actor, PhysicsMaterial* mat);
+      void AddGeometryRecursive(Node* rootnode, Node* subnode, physx::PxRigidActor* actor, PhysicsMaterial* mat, ObjectType type);
 
       static physx::PxDefaultErrorCallback mDefaultErrorCB;
       static physx::PxDefaultAllocator mDefaultAllocator;
@@ -36,6 +36,7 @@ namespace RealisticEngine
       physx::PxPhysics* mPhysics;
       physx::PxCooking* mCooking;
       physx::PxCpuDispatcher* mCpuDispatcher;
+      physx::PxParticleFluid* mParticleFluid;
 
       physx::PxScene* mScene;
 

@@ -68,6 +68,24 @@ bool PhysxEngine::Initialize()
     return false;
   }
 
+  mParticleFluid = mPhysics->createParticleFluid(1000, false);
+
+  if(mParticleFluid)
+  {
+    std::cout << "creating particle fluid\n";
+    mScene->addActor(*mParticleFluid);
+  }
+  else
+  {
+    std::cout << "could not create fluid\n";
+  }
+
+
+
+
+
+
+
   std::cout << "physx initialized!\n";
   std::cout.flush();
   return true;
@@ -116,71 +134,137 @@ glm::mat4 GetCoordinateSpace(Node* rootnode, Node* subnode)
   return GetCoordinateSpace(rootnode, subnode->GetParent()) * subnode->GetLocalTransform();
 }
 
-void PhysxEngine::AddGeometryRecursive(Node* rootnode, Node *subnode, PxRigidActor *actor, PhysicsMaterial* mat)
+void PhysxEngine::AddGeometryRecursive(Node* rootnode, Node *subnode, PxRigidActor *actor, PhysicsMaterial* mat, ObjectType type)
 {
   glm::mat4 relativepos = GetCoordinateSpace(rootnode, subnode);
 
-  std::vector<physx::PxVec3> verts;
+  std::vector<PxVec3> verts;
   for(int i = 0; i < subnode->GetGeometry().mVertices.size(); i++)
   {
     glm::vec3 tmp = subnode->GetGeometry().mVertices[i];
     verts.push_back(PxVec3(tmp.x, tmp.y, tmp.z));
   }
+  PxBoundedData indices;
+  indices.stride = sizeof(GLint);
   if(verts.size() > 0)
   {
-    PxConvexMeshDesc convexDesc;
-    convexDesc.points.count     = verts.size();
-    convexDesc.points.stride    = sizeof(physx::PxVec3);
-    convexDesc.points.data      = verts.data();
-    convexDesc.flags            = PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eINFLATE_CONVEX;
-    convexDesc.vertexLimit      = 256;
-
-    std::cout << "cooking... " << verts.size() << std::endl;
-    std::cout.flush();
-    PxDefaultMemoryOutputStream buf;
-    if(!mCooking->cookConvexMesh(convexDesc, buf))
+    if(type == RIGID_DYNAMIC)
     {
-      std::cout << "failed cooking convexmesh\n";
-    }
-    else
-    {
-      PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
-      PxConvexMesh* convexMesh = mPhysics->createConvexMesh(input);
-
-      glm::vec3 xaxis = glm::vec3(relativepos[0]);
-      glm::vec3 yaxis = glm::vec3(relativepos[1]);
-      glm::vec3 zaxis = glm::vec3(relativepos[2]);
-
-      double scalex = glm::length(xaxis);
-      double scaley = glm::length(yaxis);
-      double scalez = glm::length(zaxis);
-
-      glm::mat4 normalizedmat = glm::mat4(glm::normalize(relativepos[0]),
-                                          glm::normalize(relativepos[1]),
-                                          glm::normalize(relativepos[2]),
-                                          relativepos[3]);
+      PxConvexMeshDesc convexDesc;
+      convexDesc.points.count     = verts.size();
+      convexDesc.points.stride    = sizeof(physx::PxVec3);
+      convexDesc.points.data      = verts.data();
+      convexDesc.flags            = PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eINFLATE_CONVEX;
+      convexDesc.vertexLimit      = 256;
 
 
-
-      PxMeshScale scale(PxVec3(scalex,scaley,scalez), PxQuat(1.0));
-      PxConvexMeshGeometry geoconvex = PxConvexMeshGeometry(convexMesh, scale);
-
-      PxMaterial* material;
-
-      material = mPhysics->createMaterial(mat->mStaticFriction, mat->mDynamicFriction, mat->mRestitution);
-      if(!material)
+      std::cout << "cooking... " << verts.size() << std::endl;
+      std::cout.flush();
+      PxDefaultMemoryOutputStream buf;
+      if(!mCooking->cookConvexMesh(convexDesc, buf))
       {
-        std::cout << "could not create material\n";
+        std::cout << "failed cooking convexmesh\n";
       }
+      else
+      {
+        PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+        PxConvexMesh* convexMesh = mPhysics->createConvexMesh(input);
 
-      PxShape* shape = mPhysics->createShape(geoconvex, *material);
-      shape->setLocalPose(PxTransform(*((physx::PxMat44*)&normalizedmat)));
-      actor->attachShape(*shape);
+        glm::vec3 xaxis = glm::vec3(relativepos[0]);
+        glm::vec3 yaxis = glm::vec3(relativepos[1]);
+        glm::vec3 zaxis = glm::vec3(relativepos[2]);
+
+        double scalex = glm::length(xaxis);
+        double scaley = glm::length(yaxis);
+        double scalez = glm::length(zaxis);
+
+        glm::mat4 normalizedmat = glm::mat4(glm::normalize(relativepos[0]),
+            glm::normalize(relativepos[1]),
+            glm::normalize(relativepos[2]),
+            relativepos[3]);
+
+
+
+        PxMeshScale scale(PxVec3(scalex,scaley,scalez), PxQuat(1.0));
+        PxConvexMeshGeometry geoconvex = PxConvexMeshGeometry(convexMesh, scale);
+
+        PxMaterial* material;
+
+        material = mPhysics->createMaterial(mat->mStaticFriction, mat->mDynamicFriction, mat->mRestitution);
+        if(!material)
+        {
+          std::cout << "could not create material\n";
+        }
+
+        PxShape* shape = mPhysics->createShape(geoconvex, *material);
+        shape->setLocalPose(PxTransform(*((physx::PxMat44*)&normalizedmat)));
+        actor->attachShape(*shape);
+      }
     }
+    else if(type == RIGID_STATIC)
+    {
+      PxTriangleMeshDesc meshDesc;
+      meshDesc.points.count           = verts.size();
+      meshDesc.points.stride          = sizeof(PxVec3);
+      meshDesc.points.data            = verts.data();
+      std::vector<PxU32> indices;
+      for(int i = 0; i < subnode->GetGeometry().mIndices.size(); i++)
+      {
+        indices.push_back(subnode->GetGeometry().mIndices[i]);
+      }
+      meshDesc.triangles.count        = indices.size()/3;
+      meshDesc.triangles.stride       = 3*sizeof(PxU32);
+      meshDesc.triangles.data         = indices.data();
+
+      std::cout << "cooking... " << verts.size() << std::endl;
+      std::cout.flush();
+      PxDefaultMemoryOutputStream buf;
+      if(!mCooking->cookTriangleMesh(meshDesc, buf))
+      {
+        std::cout << "failed cooking convexmesh\n";
+      }
+      else
+      {
+        PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+        PxTriangleMesh* convexMesh = mPhysics->createTriangleMesh(input);
+
+        glm::vec3 xaxis = glm::vec3(relativepos[0]);
+        glm::vec3 yaxis = glm::vec3(relativepos[1]);
+        glm::vec3 zaxis = glm::vec3(relativepos[2]);
+
+        double scalex = glm::length(xaxis);
+        double scaley = glm::length(yaxis);
+        double scalez = glm::length(zaxis);
+
+        glm::mat4 normalizedmat = glm::mat4(glm::normalize(relativepos[0]),
+            glm::normalize(relativepos[1]),
+            glm::normalize(relativepos[2]),
+            relativepos[3]);
+
+
+
+        PxMeshScale scale(PxVec3(scalex,scaley,scalez), PxQuat(1.0));
+        PxTriangleMeshGeometry geoconvex = PxTriangleMeshGeometry(convexMesh, scale);
+
+        PxMaterial* material;
+
+        material = mPhysics->createMaterial(mat->mStaticFriction, mat->mDynamicFriction, mat->mRestitution);
+        if(!material)
+        {
+          std::cout << "could not create material\n";
+        }
+
+        PxShape* shape = mPhysics->createShape(geoconvex, *material);
+        shape->setLocalPose(PxTransform(*((physx::PxMat44*)&normalizedmat)));
+        actor->attachShape(*shape);
+      }
+    }
+
+
   }
   for(int i = 0; i < subnode->GetChildren().size(); i++)
   {
-    AddGeometryRecursive(rootnode, subnode->GetChildren()[i], actor, mat);
+    AddGeometryRecursive(rootnode, subnode->GetChildren()[i], actor, mat, type);
   }
 }
 
@@ -204,13 +288,13 @@ void PhysxEngine::AddObject(Node *node, ObjectType type, PhysicsMaterial mat)
   {
   case RIGID_DYNAMIC:
     actor = mPhysics->createRigidDynamic(PxTransform(*((physx::PxMat44*)&transform)));
-    AddGeometryRecursive(node, node, actor, &mat);
+    AddGeometryRecursive(node, node, actor, &mat, RIGID_DYNAMIC);
     physx::PxRigidBodyExt::updateMassAndInertia(*(physx::PxRigidDynamic*)actor, mat.mDensity);
     mDynamicActors[node] = (PxRigidDynamic*)actor;
     break;
   case RIGID_STATIC:
     actor = mPhysics->createRigidStatic(PxTransform(*((physx::PxMat44*)&transform)));
-    AddGeometryRecursive(node, node, actor, &mat);
+    AddGeometryRecursive(node, node, actor, &mat, RIGID_STATIC);
     break;
   }
 

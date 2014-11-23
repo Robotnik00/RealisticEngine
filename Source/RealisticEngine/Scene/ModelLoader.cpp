@@ -80,6 +80,9 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
     for(int j = 0; j < 4; j++)
       transform[i][j] = ainode->mTransformation[j][i];
 
+
+
+  std::cout.flush();
   // set the node's transform which will eventually propogate to the shader's transform matrices.
   subnode->SetLocalTransform(transform);
 
@@ -127,16 +130,16 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
       }
       if(texture == NULL)
       {
-        std::cout << "diffuse " << dir << " -loaded" << std::endl;
         texture = RealisticEngine::Utility::LoadTextureFromFile(dir, GL_TEXTURE0, GL_UNSIGNED_BYTE);
         if(texture)
         {
+          std::cout << "diffuse " << dir << " -loaded" << std::endl;
           mTextures[dir] = texture; // store original texture
-          texture = new Texture(texture); // make a copy to put in the node
+          texture = new Texture(mTextures[dir]); // make a copy to put in the node
         }
       }
 
-      if(texture)
+      if(texture != NULL)
       {
         // if success tell the shaders there is a diffuse map
         subnode->AddAsset(texture);
@@ -217,15 +220,22 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
       hasNormalTex->SetData(&data, sizeof(GLint));
     }
 
+    Geometry geo;
     // if has indices load into vbo
     if(mesh->HasFaces())
     {
-      GLushort* index = new GLushort[mesh->mNumFaces * 3];
+      std::cout << "has faces " << mesh->mNumFaces << "\n";
+      GLuint* index = new GLuint[mesh->mNumFaces * 3];
       for(int j = 0; j < mesh->mNumFaces; j++)
       {
         index[j * 3 + 0] = mesh->mFaces[j].mIndices[0];
         index[j * 3 + 1] = mesh->mFaces[j].mIndices[1];
         index[j * 3 + 2] = mesh->mFaces[j].mIndices[2];
+
+
+        geo.mIndices.push_back(mesh->mFaces[j].mIndices[0]);
+        geo.mIndices.push_back(mesh->mFaces[j].mIndices[1]);
+        geo.mIndices.push_back(mesh->mFaces[j].mIndices[2]);
       }
 
       ElementArrayBuffer* indexBuffer = new ElementArrayBuffer();
@@ -242,7 +252,6 @@ void AssimpModelLoader::TraverseTree(const aiScene* scene, aiNode* ainode, Node*
       positionBuffer->Load();
       vbo->AddAtributeArray(positionBuffer);
 
-      Geometry geo;
       for(int i = 0; i < mesh->mNumVertices; i++)
       {
         glm::vec3 vert = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
@@ -319,7 +328,7 @@ bool AssimpModelLoader::Load(std::string dir, std::string fileName, Node *node)
   // if scene has not been loaded
   if(scene == NULL)
   {
-    scene = mImporter->ReadFile(path, aiProcessPreset_TargetRealtime_Fast);//aiProcessPreset_TargetRealtime_Fast has the configs you'll needai
+    scene = mImporter->ReadFile(path, aiProcessPreset_TargetRealtime_Fast & (~aiProcess_JoinIdenticalVertices));//aiProcessPreset_TargetRealtime_Fast has the configs you'll needai
 
     if(scene == NULL)
     {

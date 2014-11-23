@@ -98,7 +98,7 @@ Node* RealisticEngine::Scene::CreateCube(float w, float h, float l, GPURenderer*
     0.0,-1.0,0.0,
   };
 
-  GLushort indices[] = {
+  GLuint indices[] = {
     // front
     0,1,2,
     0,2,3,
@@ -161,6 +161,10 @@ Node* RealisticEngine::Scene::CreateCube(float w, float h, float l, GPURenderer*
     pos.y = positionbuffer[i*3 + 1];
     pos.z = positionbuffer[i*3 + 2];
     geo.mVertices.push_back(pos);
+  }
+  for(int i = 0; i < 72; i++)
+  {
+    geo.mIndices.push_back(indices[i]);
   }
 
   objectNode->SetGeometry(geo);

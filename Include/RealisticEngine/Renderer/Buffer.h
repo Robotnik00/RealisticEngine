@@ -33,7 +33,7 @@ namespace RealisticEngine
 
       GLint GetID() { return mID; }
       GLint GetNumVertices() { return mNumVertices; }
-
+      void* GetData() { return mData; }
 
     protected:
       GLsizei mBytesPerVertex;

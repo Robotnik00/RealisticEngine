@@ -39,14 +39,14 @@ void Buffer::Delete()
 
 
 ElementArrayBuffer::ElementArrayBuffer(GPURenderer* renderer, void *data, GLsizei nIndices)
-  : Buffer::Buffer(renderer, NULL, data, GL_UNSIGNED_SHORT, 2, nIndices, 1)
+  : Buffer::Buffer(renderer, NULL, data, GL_UNSIGNED_INT, 4, nIndices, 1)
 {
 
 }
 
 void ElementArrayBuffer::Setup(GPURenderer *renderer, void *data, GLsizei nIndices)
 {
-  Buffer::Setup(renderer, NULL, data, GL_UNSIGNED_SHORT, 2, nIndices, 1);
+  Buffer::Setup(renderer, NULL, data, GL_UNSIGNED_INT, 4, nIndices, 1);
 }
 
 void ElementArrayBuffer::Load()
@@ -97,6 +97,6 @@ void VertexBufferObject::Render()
 
   mIndexBuffer->Bind();
 
-  glDrawElements(GL_TRIANGLES, mIndexBuffer->GetNumVertices(), GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, mIndexBuffer->GetNumVertices(), GL_UNSIGNED_INT, 0);
 }
 

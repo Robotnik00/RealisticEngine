@@ -21,7 +21,7 @@ namespace RealisticEngine
       State* GetState() { return mCurrentState; }
 
       /* Number of times the current state is updated per second */      
-      void SetUpdateFrequency(double freq) { mUpdateFrequency = freq; }
+      void SetUpdateFrequency(double freq) { if(freq > 0) mUpdateFrequency = freq; }
       double GetUpdateFrequency() { return mUpdateFrequency; } 
 
       /* Number of times the current state is rendered per second */

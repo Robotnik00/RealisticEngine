@@ -11,7 +11,7 @@ using namespace std::chrono;
 Engine::Engine()
 {
   mTime = 0.0;
-  mUpdateFrequency = 30.0;
+  mUpdateFrequency = 0.5;
   mMaxFrameRate = 60.0;
   mCurrentState = NULL;
   mRunning = false;
@@ -27,11 +27,12 @@ void Engine::Loop()
   double lastUpdateTime = 0;
   double lastRenderTime = 0;
 
+
   while(mRunning)
   {
     currentTime = high_resolution_clock::now();
     time_span = duration_cast<duration<double>>(currentTime - startTime); 
-    mTime = time_span.count(); 
+    mTime = time_span.count();
   
     if(mTime - lastUpdateTime > ((double)1.0 / mUpdateFrequency))
     {
@@ -43,16 +44,16 @@ void Engine::Loop()
       } 
     } 
 
+
     currentTime = high_resolution_clock::now();
     time_span = duration_cast<duration<double>>(currentTime - startTime);
     mTime = time_span.count();
+
     double delta = (mTime - lastUpdateTime) * mUpdateFrequency;
-
-
 
     if(delta > 1.0) delta = 1.0;
 
-    if(mTime - lastRenderTime > ((double)1.0/mMaxFrameRate))
+//    if(mTime - lastRenderTime > ((double)1.0/mMaxFrameRate))
     {
       double fps = (1.0/(mTime - lastRenderTime));
       lastRenderTime = mTime;
@@ -64,5 +65,6 @@ void Engine::Loop()
         mCurrentState->Render(delta);
       }
     }
+
   }
 }

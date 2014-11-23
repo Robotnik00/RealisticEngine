@@ -39,17 +39,8 @@ namespace Projects
         RealisticEngine::Renderer::GPURenderer mGPURenderer;
 
         RealisticEngine::Scene::Node mRootNode; // root of scene
-        RealisticEngine::Scene::Node mGimble;
-
-        RealisticEngine::Renderer::UniformVariable mProjMat;
-        RealisticEngine::Renderer::UniformVariable mViewMat;
-
-        glm::mat4 mProjMatTransform;
-        glm::mat4 mViewMatTransform; // view matrix
 
         RealisticEngine::Scene::AssimpModelLoader mModelLoader;
-        RealisticEngine::Scene::Node* mnode1;
-        RealisticEngine::Scene::Node* mnode2;
         RealisticEngine::Scene::Camera mCamera;
 
         RealisticEngine::Scene::PhysxEngine mPhysx;
@@ -59,7 +50,10 @@ namespace Projects
         bool mKeysPressed[255];
         float mSpeed = 10.0;
 
+        double mTimestep = 1.0/60.0;
         double lastTime;
+
+        bool mBegin = false;
       };
     }
   }

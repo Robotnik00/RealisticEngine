@@ -64,7 +64,7 @@ void GPURenderer::Initialize()
     1.0, 1.0, 0.0,
     -1.0, 1.0, 0.0
   };
-  GLshort displayIndices[] = {
+  GLuint displayIndices[] = {
     0,1,2,
     0,2,3
   };
@@ -89,6 +89,11 @@ void GPURenderer::Initialize()
   mLightMatrix.SetRenderer(this);
   mTexUnit.Setup("depthMap", UniformVariable::INT, 1);
   mTexUnit.SetRenderer(this);
+
+  // needed for renderer
+  glEnable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
 
 }
 
