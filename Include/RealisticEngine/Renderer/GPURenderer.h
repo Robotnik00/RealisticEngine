@@ -16,6 +16,7 @@ namespace RealisticEngine
 {
   namespace Renderer
   {
+    class ParticleSystem;
     class Light;
 
     class GPURenderer : public BaseRenderer
@@ -30,6 +31,7 @@ namespace RealisticEngine
 
       void SetActiveShader(Shader* shader) { shader->MakeActive(); mActiveShader = shader; }
 
+      void SetParticleSystem(ParticleSystem* ps) { mPS = ps; }
 
 
       Shader* GetActiveShader() { return mActiveShader; }
@@ -53,16 +55,13 @@ namespace RealisticEngine
 
       AttributeArrayBuffer mDisplayPositions;
       ElementArrayBuffer mDisplayIndices;
-      FrameBuffer mFrameBufferObject;
+      FrameBuffer mFrameBufferObject1;
+
+      ParticleSystem* mPS;
 
 
 
-      FrameBuffer mDepthBuffer1;
-      FrameBuffer mDepthBuffer2;
-      FrameBuffer mDepthBuffer3;
-      FrameBuffer mDepthBuffer4;
-      FrameBuffer mDepthBuffer5;
-      FrameBuffer mDepthBuffer6;
+      FrameBuffer mFrameBufferObject2;
 
       UniformVariable mLightMatrix;
       UniformVariable mTexUnit;

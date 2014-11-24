@@ -17,7 +17,8 @@ Buffer::Buffer(GPURenderer* renderer, char* name, void* data, GLenum type, GLsiz
 Buffer::~Buffer()
 {
   glDeleteBuffers(1, &mID);
-  delete[] (char*)mData;
+  if(mData != NULL)
+    delete[] (char*)mData;
 }
 
 void Buffer::Setup(GPURenderer* renderer, char* name, void* data, GLenum type, GLsizei bytesPerVertex, GLsizei nVertices, GLsizei dimensions)
@@ -77,7 +78,21 @@ void AttributeArrayBuffer::Load()
 {
   glGenBuffers(1, &mID);
   glBindBuffer(GL_ARRAY_BUFFER, mID);
-  glBufferData(GL_ARRAY_BUFFER, mBytesPerVertex * mNumVertices, mData, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, mBytesPerVertex * mNumVertices, mData, GL_STREAM_DRAW);
+}
+
+void AttributeArrayBuffer::Update(void *data, GLint numVertices)
+{
+  mNumVertices = numVertices;
+  glBindBuffer(GL_ARRAY_BUFFER, mID);
+  glBufferData(GL_ARRAY_BUFFER, mBytesPerVertex * mNumVertices, data, GL_STREAM_DRAW);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, mBytesPerVertex * mNumVertices, data);
+}
+
+GLint AttributeArrayBuffer::GetLocation()
+{
+  GLint loc = glGetAttribLocation(mRenderer->GetActiveShader()->GetProgramID(), (GLchar*)mName);
+  return loc;
 }
 
 void AttributeArrayBuffer::Bind()
@@ -95,8 +110,10 @@ void VertexBufferObject::Render()
     mAttributeArrays[i]->Bind();
   }
 
-  mIndexBuffer->Bind();
-
-  glDrawElements(GL_TRIANGLES, mIndexBuffer->GetNumVertices(), GL_UNSIGNED_INT, 0);
+  if(mIndexBuffer != NULL)
+  {
+    mIndexBuffer->Bind();
+    glDrawElements(GL_TRIANGLES, mIndexBuffer->GetNumVertices(), GL_UNSIGNED_INT, 0);
+  }
 }
 

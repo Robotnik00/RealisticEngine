@@ -26,6 +26,18 @@ namespace RealisticEngine
      *  5. type: data type of pixle. ex: GL_UNSIGNED_BYTE, GL_FLOAT
      */
     Renderer::Texture* LoadTextureFromFile(std::string filename, GLenum textureUnit = GL_TEXTURE0, GLenum type=GL_UNSIGNED_BYTE);
+
+    class Sphere
+    {
+    public:
+      uint32_t* indices;
+      float* positions;
+      float* normals;
+      uint32_t numPos;
+      uint32_t numIndices;
+    };
+
+    Sphere CreateSphere(float r, int hsects, int vsects);
   }
 }
 

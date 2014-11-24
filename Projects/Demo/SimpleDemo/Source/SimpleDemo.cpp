@@ -87,7 +87,7 @@ void SimpleDemoState::Initialize()
 
   // physics material
   PhysicsMaterial pxmat;
-  pxmat.mDensity = 1.0;
+  pxmat.mDensity = 0.5;
   pxmat.mDynamicFriction = 0.7;
   pxmat.mStaticFriction = 0.5;
   pxmat.mRestitution = 0.6;
@@ -114,7 +114,7 @@ void SimpleDemoState::Initialize()
       for(int k = 0; k < n; k++)
       {
         glm::vec3 pos = glm::vec3(scale * (i - n/2),scale * j + 20, scale * (k-n/2));
-        glm::vec3 size = glm::vec3(scale,scale,scale);
+        glm::vec3 size = glm::vec3(scale*.9,scale*.9,scale*.9);
         Node* node = CreateBox(pos, size, &mGPURenderer, &mPhysx);
 
         mRootNode.AddChild(node);
@@ -128,7 +128,7 @@ void SimpleDemoState::Initialize()
   for(int i = 0; i < 256; i++)
     mKeysPressed[i] = false;
 
-
+  mEngine->SetUpdateFrequency(60);
 }
 
 void SimpleDemoState::Update()
@@ -237,10 +237,12 @@ void SimpleDemoState::Render(double delta)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
   // render scene
   mGPURenderer.RenderScene(&mRootNode, delta);
 
   SDL_RenderPresent(SDLState::mRenderer);
+
 }
 
 void SimpleDemoState::ProcessEvent(SDL_Event env)

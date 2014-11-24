@@ -24,6 +24,11 @@ namespace RealisticEngine
       virtual void RemoveObject(Node* node);
       virtual void ApplyForce(Node* node, glm::vec3 force);
       virtual void ApplyTorque(Node* node, glm::vec3 torque);
+
+      bool CreateFluid(uint32_t maxParticles, uint32_t* indices, float* positions);
+
+      bool RealFluidParticlePositions(float* data);
+
     protected:
 
       void AddGeometryRecursive(Node* rootnode, Node* subnode, physx::PxRigidActor* actor, PhysicsMaterial* mat, ObjectType type);
@@ -36,7 +41,6 @@ namespace RealisticEngine
       physx::PxPhysics* mPhysics;
       physx::PxCooking* mCooking;
       physx::PxCpuDispatcher* mCpuDispatcher;
-      physx::PxParticleFluid* mParticleFluid;
 
       physx::PxScene* mScene;
 
@@ -46,6 +50,10 @@ namespace RealisticEngine
 
       std::map<long, Node*> mActors;
       std::map<Node*, physx::PxRigidDynamic*> mDynamicActors;
+
+
+      physx::PxParticleFluid* mParticleFluid;
+      uint32_t mMaxParticles;
     };
   }
 }

@@ -18,7 +18,7 @@ namespace RealisticEngine
     class Buffer
     {
     public:
-      Buffer() {}
+      Buffer() { mData = NULL; }
       Buffer(GPURenderer* renderer, char* name, void* data, GLenum type, GLsizei bytesPerVertex, GLsizei nVertices, GLsizei dimensions);
       ~Buffer();
 
@@ -41,7 +41,7 @@ namespace RealisticEngine
       GLsizei mDimensions;
       GLuint mID;
       GLenum mType;
-      void* mData;
+      char* mData;
       char* mName;
       GPURenderer* mRenderer;
     };
@@ -66,6 +66,10 @@ namespace RealisticEngine
       virtual void Load();
       virtual void Bind();
 
+      GLint GetLocation();
+
+      virtual void Update(void* data, GLint numVertices);
+
     };
 
     class VertexBufferObject
@@ -78,6 +82,7 @@ namespace RealisticEngine
       void AddAtributeArray(Buffer* buffer) { mAttributeArrays.push_back(buffer); }
       void SetIndices(Buffer* buffer) { mIndexBuffer = buffer; }
 
+
       void SetRenderer(GPURenderer* renderer) { mRenderer = renderer; }
 
     protected:
@@ -86,6 +91,7 @@ namespace RealisticEngine
 
       Buffer* mIndexBuffer;
       std::vector<Buffer*> mAttributeArrays;
+
     };
 
   }

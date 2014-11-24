@@ -9,6 +9,7 @@
 #include "RealisticEngine/Scene/Node.h"
 #include "RealisticEngine/Renderer/Asset.h"
 
+#include "RealisticEngine/Renderer/ParticleSystem.h"
 
 
 using namespace RealisticEngine::Renderer;
@@ -79,21 +80,19 @@ void GPURenderer::Initialize()
   mDisplayVBO.AddAtributeArray(&mDisplayPositions);
   mDisplayVBO.SetIndices(&mDisplayIndices);
 
-  mFrameBufferObject.Setup(1024, 768);
-  mFrameBufferObject.Initialize();
+  mFrameBufferObject1.Setup(1024, 768);
+  mFrameBufferObject1.Initialize();
 
-  mDepthBuffer1.Setup(1024,768);
-  mDepthBuffer1.Initialize();
+  mFrameBufferObject2.Setup(1024, 768);
+  mFrameBufferObject2.Initialize();
 
   mLightMatrix.Setup("lightMat", UniformVariable::MAT4F, 1);
   mLightMatrix.SetRenderer(this);
   mTexUnit.Setup("depthMap", UniformVariable::INT, 1);
   mTexUnit.SetRenderer(this);
 
-  // needed for renderer
-  glEnable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+
+  mPS = NULL;
 
 }
 
@@ -104,8 +103,12 @@ void GPURenderer::RenderScene(Node* scene, double delta)
 
 
 
-    mFrameBufferObject.Bind();
+    mFrameBufferObject1.Bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // needed for renderer
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
 
     glBlendFunc(GL_ONE, GL_ZERO);
@@ -118,17 +121,33 @@ void GPURenderer::RenderScene(Node* scene, double delta)
       glBlendFunc(GL_ONE, GL_ONE);
     }
 
-    mFrameBufferObject.UnBind();
+    // needed for renderer
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_LEQUAL);
+//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+
+    if(mPS != NULL)
+      mPS->Render(delta);
+
+
+    mFrameBufferObject1.UnBind();
+
+
 
 
     glViewport(0,0,1024,768);
-    mFrameBufferObject.BindTexture(FrameBuffer::COLOR_BUFFER_TEXTURE, GL_TEXTURE0);
+    mFrameBufferObject1.BindTexture(FrameBuffer::COLOR_BUFFER_TEXTURE, GL_TEXTURE0);
     int loc = glGetUniformLocation(mDisplayShader.GetProgramID(), "texture");
     glUniform1i(loc, 0);
 
     SetActiveShader(&mDisplayShader);
     mDisplayVBO.Render();
 
-    std::cout.flush();
+
+
+
+//    std::cout.flush();
   }
 }

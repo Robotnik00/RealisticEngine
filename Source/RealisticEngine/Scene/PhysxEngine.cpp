@@ -68,17 +68,6 @@ bool PhysxEngine::Initialize()
     return false;
   }
 
-  mParticleFluid = mPhysics->createParticleFluid(1000, false);
-
-  if(mParticleFluid)
-  {
-    std::cout << "creating particle fluid\n";
-    mScene->addActor(*mParticleFluid);
-  }
-  else
-  {
-    std::cout << "could not create fluid\n";
-  }
 
 
 
@@ -112,7 +101,6 @@ void PhysxEngine::StepTime(double dt)
           physx::PxRigidActor* actor = buffer[i]->isRigidDynamic();
           if(actor != NULL)
           {
-
             physx::PxMat44 mat(actor->getGlobalPose());
             mActors[(long)actor->userData]->SetLocalTransform(*((glm::mat4*)&mat));
           }
@@ -156,7 +144,9 @@ void PhysxEngine::AddGeometryRecursive(Node* rootnode, Node *subnode, PxRigidAct
       convexDesc.points.data      = verts.data();
       convexDesc.flags            = PxConvexFlag::eCOMPUTE_CONVEX | physx::PxConvexFlag::eINFLATE_CONVEX;
       convexDesc.vertexLimit      = 256;
-
+      convexDesc.triangles.data   = subnode->GetGeometry().mIndices.data();
+      convexDesc.triangles.stride = 3 * sizeof(PxU32);
+      convexDesc.triangles.count  = subnode->GetGeometry().mIndices.size()/3;
 
       std::cout << "cooking... " << verts.size() << std::endl;
       std::cout.flush();
@@ -311,11 +301,72 @@ void PhysxEngine::RemoveObject(Node *node)
    */
 }
 
+bool PhysxEngine::CreateFluid(uint32_t numParticles, uint32_t *indices, float *startingpositions)
+{
+  mParticleFluid = mPhysics->createParticleFluid(1000000, false);
+  mMaxParticles = numParticles;
+
+  mParticleFluid->setRestParticleDistance(.15);
+
+  if(mParticleFluid != NULL)
+    mScene->addActor(*mParticleFluid);
+
+
+  PxParticleCreationData particleCreationData;
+  particleCreationData.numParticles = numParticles;
+  particleCreationData.positionBuffer = PxStrideIterator<const PxVec3>((PxVec3*)startingpositions);
+  particleCreationData.indexBuffer = PxStrideIterator<const PxU32>(indices);
+
+  mParticleFluid->setViscosity(.8);
+
+//  mParticleFluid->setStiffness(1);
+//  mParticleFluid->setDamping(0.7);
+  bool success = mParticleFluid->createParticles(particleCreationData);
+
+  return success;
+}
+
+bool PhysxEngine::RealFluidParticlePositions(float* data)
+{
+  PxParticleReadData* rd = mParticleFluid->lockParticleReadData();
+
+
+  if(rd)
+  {
+    PxStrideIterator<const PxParticleFlags> flagsIt(rd->flagsBuffer);
+    PxStrideIterator<const PxVec3> positionIt(rd->positionBuffer);
+    int index = 0;
+    for (unsigned i = 0; i < rd->validParticleRange; ++i, ++flagsIt, ++positionIt)
+    {
+            if (*flagsIt & PxParticleFlag::eVALID)
+            {
+              index++;
+
+                    // access particle position
+                    const PxVec3& position = *positionIt;
+                    data[i*3 + 0] = position.x;
+                    data[i*3 + 1] = position.y;
+                    data[i*3 + 2] = position.z;
+            }
+    }
+    // return ownership of the buffers back to the SDK
+    rd->unlock();
+    return true;
+  }
+
+
+  return false;
+
+
+}
+
 void PhysxEngine::ApplyForce(Node *node, glm::vec3 force)
 {
   /*
    * to do
    */
+
+
 }
 
 void PhysxEngine::ApplyTorque(Node *node, glm::vec3 torque)
