@@ -16,6 +16,12 @@ namespace RealisticEngine
       glm::vec3 pos;
     };
 
+    /*
+     * this code is used to set up buffers for renderering
+     * a particle system.
+     * uses its own specailized data, so certain data from scene
+     * must be given to it so it works properly ie. camera
+     */
     class ParticleSystem
     {
     public:

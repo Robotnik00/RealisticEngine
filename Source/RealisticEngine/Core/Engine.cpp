@@ -11,7 +11,7 @@ using namespace std::chrono;
 Engine::Engine()
 {
   mTime = 0.0;
-  mUpdateFrequency = 60;
+  mUpdateFrequency = 20;
   mMaxFrameRate = 60.0;
   mCurrentState = NULL;
   mRunning = false;

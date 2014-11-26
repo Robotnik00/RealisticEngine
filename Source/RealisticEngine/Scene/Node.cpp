@@ -19,6 +19,7 @@ Node::Node()
   mParent = NULL;
   mTransform = glm::mat4(1);
   mPrevGlobalTransform = glm::mat4(1);
+  mStartingPos = true;
 }
 
 void Node::SetLocalTransform(glm::mat4 transform)

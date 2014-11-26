@@ -20,7 +20,7 @@ namespace Projects
       class RealisticWaterState : public RealisticEngine::Core::SDLState
       {
       public:
-        RealisticWaterState(RealisticEngine::Core::Engine* engine) { mEngine = engine; }
+        RealisticWaterState(RealisticEngine::Core::Engine* engine) { mLastTime = 0; mEngine = engine; }
 
         virtual void Initialize();
 
@@ -47,7 +47,7 @@ namespace Projects
         uint32_t mNumParticles;
 
         bool mKeysPressed[256];
-        double mLastTime = 0;
+        double mLastTime;
         glm::vec4 mMouseVec;
       };
     }

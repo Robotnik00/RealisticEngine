@@ -8,6 +8,11 @@ namespace RealisticEngine
 {
   namespace Renderer
   {
+    /*
+     * encapsulates code for renderering depth and color
+     * buffers to a frame buffer and binding them to
+     * textures for another shader pass.
+     */
     class FrameBuffer
     {
     public:
@@ -17,6 +22,9 @@ namespace RealisticEngine
         COLOR_BUFFER_TEXTURE,
         DEPTH_BUFFER_TEXTURE
       } BIND_OPTION;
+
+      FrameBuffer() { mFramebufferName = 0; }
+
       void Setup(int xres, int yres);
       void Initialize();
       void Bind();
@@ -26,7 +34,7 @@ namespace RealisticEngine
 
     protected:
 
-      GLuint mFramebufferName = 0;
+      GLuint mFramebufferName;
       // The texture we're going to render to
       GLuint mRenderedTexture;
       // The texture we're going to render to

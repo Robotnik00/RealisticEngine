@@ -21,6 +21,9 @@ namespace RealisticEngine
 {
   namespace Scene
   {
+    /*
+     * loads code from an arbitrary file format.
+     */
     class ModelLoader
     {
     public:
@@ -30,6 +33,10 @@ namespace RealisticEngine
     protected:
     };
 
+    /*
+     * an implementation of ModelLoader using assimp
+     * for supported formats see http://assimp.sourceforge.net/
+     */
     class AssimpModelLoader : public ModelLoader
     {
     public:

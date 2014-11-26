@@ -19,6 +19,18 @@ namespace RealisticEngine
   }
   namespace Scene
   {
+    /*
+     * Nodes define a coordinate space for a set of
+     * drawcalls, actions and geometry.
+     *
+     * build scenes in a tree structure using nodes.
+     * every node is define with respect to its parent coordinate space
+     *
+     * add actions to nodes be updated every engine tick. Ex. Camera, Animation
+     *
+     * add drawinterfaces to the node to be renderer every frame. ex. Vertex Buffer Object
+     * add assets to the node to be binded to before any drawinterfaces are called. ex. Texture, Uniform variable
+     */
     class Node
     {
     public:
@@ -82,7 +94,7 @@ namespace RealisticEngine
 
       Geometry mGeometry;
 
-      bool mStartingPos = true;
+      bool mStartingPos;
     };
   }
 }

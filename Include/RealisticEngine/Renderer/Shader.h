@@ -10,6 +10,9 @@ namespace RealisticEngine
 {
   namespace Renderer
   {
+    /*
+     *  code for loading a shader
+     */
     class Shader
     {
     public:

@@ -15,7 +15,7 @@ void ParticleSystem::Setup(Camera *camera, GPURenderer* renderer)
 
 bool compare(glm::vec3 lhs, glm::vec3 rhs)
 {
-  if(lhs.y > rhs.y)
+  if(lhs.y < rhs.y)
   {
     return true;
   }
@@ -29,19 +29,19 @@ void ParticleSystem::SetParticles(GLfloat *particleposbuffer, int numParticles)
 {
   mNumParticles = numParticles;
 
-//  std::vector<glm::vec3> particles;
-//  particles.assign((glm::vec3*)particleposbuffer, (glm::vec3*)particleposbuffer + numParticles);
+  std::vector<glm::vec3> particles;
+  particles.assign((glm::vec3*)particleposbuffer, (glm::vec3*)particleposbuffer + numParticles);
 
-//  std::sort(particles.begin(), particles.end(), compare);
+  std::sort(particles.begin(), particles.end(), compare);
 
-//  mQuadPosition.Update(particles.data(), mNumParticles);
-  mQuadPosition.Update(particleposbuffer, mNumParticles);
+  mQuadPosition.Update(particles.data(), mNumParticles);
+//  mQuadPosition.Update(particleposbuffer, mNumParticles);
 }
 
 void ParticleSystem::Initialize()
 {
 
-  sphere = RealisticEngine::Utility::CreateSphere(.3, 10,10);
+  sphere = RealisticEngine::Utility::CreateSphere(.045, 10,10);
 
 
 
@@ -92,7 +92,6 @@ void ParticleSystem::Render(float delta)
   mQuadIndices.Bind();
   glVertexAttribDivisor(mQuadBuffer.GetLocation(), 0);
   glVertexAttribDivisor(mQuadPosition.GetLocation(), 1);
-//  glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
   glDrawElementsInstanced(GL_TRIANGLES, sphere.numIndices, GL_UNSIGNED_INT, NULL, mNumParticles);
   glVertexAttribDivisor(0, 0);
   glVertexAttribDivisor(1, 0);

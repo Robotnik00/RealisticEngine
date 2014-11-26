@@ -18,6 +18,9 @@ namespace RealisticEngine
   }
   namespace Scene
   {
+    /*
+     * code for computing view transform
+     */
     class Camera : public Renderer::Asset, public Action
     {
     public:

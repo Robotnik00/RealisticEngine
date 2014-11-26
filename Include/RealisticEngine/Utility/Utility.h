@@ -37,6 +37,9 @@ namespace RealisticEngine
       uint32_t numIndices;
     };
 
+    /*
+     * Create a sphere with radius r
+     */
     Sphere CreateSphere(float r, int hsects, int vsects);
   }
 }

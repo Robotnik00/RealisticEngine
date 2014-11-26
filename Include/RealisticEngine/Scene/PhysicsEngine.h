@@ -12,7 +12,9 @@ namespace RealisticEngine
     class Node;
 
 
-
+    /*
+     * properties for a material in a physics engine
+     */
     class PhysicsMaterial
     {
     public:
@@ -22,6 +24,9 @@ namespace RealisticEngine
       double mDensity;
     };
 
+    /*
+     * gerneral functions a physics engine should have.
+     */
     class PhysicsEngine
     {
     public:

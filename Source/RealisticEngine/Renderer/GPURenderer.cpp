@@ -126,12 +126,14 @@ void GPURenderer::RenderScene(Node* scene, double delta)
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_LEQUAL);
 //    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+//    if(mPS != NULL)
+//      mPS->Render(delta);
 
+    glBlendFunc(GL_ONE, GL_ONE);
     if(mPS != NULL)
       mPS->Render(delta);
-
-
     mFrameBufferObject1.UnBind();
 
 

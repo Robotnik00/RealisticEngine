@@ -12,10 +12,15 @@ namespace RealisticEngine
 {
   namespace Scene
   {
-
+    /*
+     * an inplementation of physicsEngine using physx sdk
+     *
+     * added support for particle fluids
+     */
     class PhysxEngine : public PhysicsEngine
     {
     public:
+      PhysxEngine() { mLastID = 0; }
       virtual void Setup(double gravity);
       virtual bool Initialize();
       virtual bool Shutdown();
@@ -46,7 +51,7 @@ namespace RealisticEngine
 
       double mGravity;
 
-      long mLastID = 0;
+      long mLastID;
 
       std::map<long, Node*> mActors;
       std::map<Node*, physx::PxRigidDynamic*> mDynamicActors;

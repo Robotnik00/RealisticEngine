@@ -17,7 +17,7 @@ ADD_EXECUTABLE(RealisticWater ${SOURCE} ${HEADER} ${SHADERS})
 
 TARGET_LINK_LIBRARIES(RealisticWater RealisticEngine)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11")
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
 
 add_custom_command(TARGET RealisticWater PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -8,6 +8,10 @@ namespace RealisticEngine
 {
   namespace Scene
   {
+    /*
+     * basic struct for holding geometry needed
+     * by the physics engine
+     */
     class Geometry
     {
     public:

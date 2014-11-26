@@ -10,9 +10,13 @@ namespace RealisticEngine
 {
   namespace Core
   {
+    /*
+     * A engine state that creates an SDL window
+     */
     class SDLState : public State
     {
     public:
+      SDLState() { mWidth = 1024; mHeight = 768; }
       void Setup(int width, int height);
       int GetWidth();
       int GetHeight();
@@ -27,8 +31,8 @@ namespace RealisticEngine
       SDL_Window*	mWindow;
       SDL_Renderer*	mRenderer;
 
-      int mWidth = 1024;
-      int mHeight = 768;
+      int mWidth;
+      int mHeight;
     };
   }
 }

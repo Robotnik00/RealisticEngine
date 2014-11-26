@@ -11,13 +11,19 @@ namespace RealisticEngine
     class VertexBufferObject;
     class GPURenderer;
 
-
+    /*
+     * an abstract drawcall of some kind
+     */
     class DrawInterface
     {
     public:
       virtual void Draw() = 0;
     };
 
+
+    /*
+     * draws a vertex buffer object
+     */
     class DrawVertexBufferObject : public DrawInterface
     {
     public:

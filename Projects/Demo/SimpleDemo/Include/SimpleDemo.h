@@ -48,9 +48,6 @@ namespace Projects
         glm::vec4 mMouseVec;
 
         bool mKeysPressed[255];
-        float mSpeed = 10.0;
-
-        double mTimestep = 1.0/60.0;
         double lastTime;
 
         bool mBegin = false;

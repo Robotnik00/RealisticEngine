@@ -51,7 +51,7 @@ bool PhysxEngine::Initialize()
   physx::PxSceneDesc sceneDesc(mPhysics->getTolerancesScale());
   sceneDesc.gravity = physx::PxVec3(0.0f, mGravity, 0.0f);
 
-  mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(4);
+  mCpuDispatcher = physx::PxDefaultCpuDispatcherCreate(8);
   if(!mCpuDispatcher)
   {
     std::cout << "error could not create cpu dispatcher\n";
@@ -306,7 +306,10 @@ bool PhysxEngine::CreateFluid(uint32_t numParticles, uint32_t *indices, float *s
   mParticleFluid = mPhysics->createParticleFluid(1000000, false);
   mMaxParticles = numParticles;
 
-  mParticleFluid->setRestParticleDistance(.15);
+  mParticleFluid->setGridSize(0.01);
+  mParticleFluid->setMaxMotionDistance(0.05);
+
+  mParticleFluid->setRestParticleDistance(.1);
 
   if(mParticleFluid != NULL)
     mScene->addActor(*mParticleFluid);
@@ -317,9 +320,10 @@ bool PhysxEngine::CreateFluid(uint32_t numParticles, uint32_t *indices, float *s
   particleCreationData.positionBuffer = PxStrideIterator<const PxVec3>((PxVec3*)startingpositions);
   particleCreationData.indexBuffer = PxStrideIterator<const PxU32>(indices);
 
-  mParticleFluid->setViscosity(.8);
+  mParticleFluid->setViscosity(7);
 
-//  mParticleFluid->setStiffness(1);
+
+//  mParticleFluid->setStiffness(10000);
 //  mParticleFluid->setDamping(0.7);
   bool success = mParticleFluid->createParticles(particleCreationData);
 
@@ -329,7 +333,6 @@ bool PhysxEngine::CreateFluid(uint32_t numParticles, uint32_t *indices, float *s
 bool PhysxEngine::RealFluidParticlePositions(float* data)
 {
   PxParticleReadData* rd = mParticleFluid->lockParticleReadData();
-
 
   if(rd)
   {

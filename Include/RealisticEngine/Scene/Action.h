@@ -13,6 +13,10 @@ namespace RealisticEngine
   {
     class Node;
 
+    /*
+     * an abstract callback from a node update function
+     * called once for every node it is added to every frame
+     */
     class Action
     {
     public:

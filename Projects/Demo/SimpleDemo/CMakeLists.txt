@@ -15,7 +15,7 @@ ADD_EXECUTABLE(SimpleDemo ${SOURCE_CODE} ${HEADER_CODE} ${SHADERS})
 
 TARGET_LINK_LIBRARIES(SimpleDemo RealisticEngine)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11")
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
 
 add_custom_command(TARGET SimpleDemo PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
