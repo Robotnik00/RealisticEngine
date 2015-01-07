@@ -181,11 +181,11 @@ void SimpleDemoState::Update()
   }
   if(mKeysPressed[80] == true) // left
   {
-    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamY()));
+    mCamera.Rotate(.15, glm::vec3(mCamera.GetCamY()));
   }
   if(mKeysPressed[82] == true) // up
   {
-    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamX()));
+    mCamera.Rotate(.150, glm::vec3(mCamera.GetCamX()));
   }
   if(mKeysPressed[79] == true) // right
   {
@@ -193,15 +193,15 @@ void SimpleDemoState::Update()
   }
   if(mKeysPressed[81] == true) // down
   {
-    mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamX()));
+    mCamera.Rotate(-.150, glm::vec3(mCamera.GetCamX()));
   }
   if(mKeysPressed['q'] == true)
   {
-    mCamera.Rotate(5.0, glm::vec3(mCamera.GetCamZ()));
+    mCamera.Rotate(.150, glm::vec3(mCamera.GetCamZ()));
   }
   if(mKeysPressed['e'] == true)
   {
-    mCamera.Rotate(-5.0, glm::vec3(mCamera.GetCamZ()));
+    mCamera.Rotate(-.150, glm::vec3(mCamera.GetCamZ()));
   }
 
   if(mKeysPressed['p'])
@@ -218,7 +218,7 @@ void SimpleDemoState::Update()
   {
     glm::vec3 mousevec = glm::normalize(glm::vec3(mCamera.GetMatrix() * mMouseVec));
     mousevec = glm::cross(glm::vec3(mCamera.GetCamZ()), mousevec);
-    mCamera.Rotate(4.0 * glm::length(mMouseVec), mousevec);
+    mCamera.Rotate(0.1 * glm::length(mMouseVec), mousevec);
   }
 
 

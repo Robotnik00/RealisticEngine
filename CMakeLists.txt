@@ -50,21 +50,22 @@ message("${HEADER_DIRECTORIES2}")
 file(GLOB_RECURSE sources ${PHYSX_SDK_DIR}/Source/*.cpp)
 
 file(GLOB physx_libs
-        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libSimulationController.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevel.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libSimulationController.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevel.a
         ${PHYSX_SDK_DIR}/Lib/linux64/libPhysXProfileSDK.a
         ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Extensions.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libSceneQuery.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Common.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3CharacterKinematic.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libSceneQuery.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Common.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3CharacterKinematic.a
         ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Vehicle.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Cooking.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libPvdRuntime.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libPhysX3Cooking.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libPvdRuntime.a
         ${PHYSX_SDK_DIR}/Lib/linux64/libPxTask.a
-        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevelCloth.a
-#	${PHYSX_SDK_DIR}/Lib/linux64/*.a
+#        ${PHYSX_SDK_DIR}/Lib/linux64/libLowLevelCloth.a
+#	${PHYSX_SDK_DIR}/Lib/linux64/*.a		
    )
+
 
 
 # set the output destination
@@ -98,7 +99,7 @@ ADD_SUBDIRECTORY(${ASSIMP3_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/Assimp3)
 
 INCLUDE_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Source ${SDL2_SRC_DIR}/include ${ASSIMP3_SRC_DIR}/include ${GLM_SRC_DIR} ${RealisticEngine_SOURCE_DIR}/Include ${HEADER_DIRECTORIES1} ${HEADER_DIRECTORIES2})
 
-LINK_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Dist)
+LINK_DIRECTORIES(${FREEIMAGE_SRC_DIR}/Dist ${PHYSX_SDK_DIR}/Bin/linux64)
 
 FILE(GLOB_RECURSE SOURCE_CODE ${RealisticEngine_SOURCE_DIR}/Source/*.cpp)
 
@@ -106,7 +107,7 @@ FILE(GLOB_RECURSE HEADER_CODE ${RealisticEngine_SOURCE_DIR}/Include/*.h)
 
 ADD_LIBRARY(RealisticEngine SHARED ${SOURCE_CODE} ${HEADER_CODE})
 
-TARGET_LINK_LIBRARIES(RealisticEngine SDL2 assimp GL FreeImage ${physx_libs})
+TARGET_LINK_LIBRARIES(RealisticEngine SDL2 assimp GL FreeImage PhysX3CharacterKinematic_x64 PhysX3_x64 PhysX3Cooking_x64 ${physx_libs})
 
 ADD_SUBDIRECTORY(Projects)
 
